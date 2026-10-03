@@ -219,7 +219,6 @@ int main() {
     test_market_order();
     test_determinism();
     test_pool_and_spsc();
-    std::cout << "all EFVI correctness tests passed
-";
+    std::cout << "all EFVI correctness tests passed\n";
     return 0;
 }
