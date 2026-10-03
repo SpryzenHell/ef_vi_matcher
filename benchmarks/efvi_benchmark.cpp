@@ -157,8 +157,7 @@ int main(int argc, char** argv) {
               << " mapped_bytes=" << book.pool_mapped_bytes()
               << " page_size=" << book.pool_page_size()
               << " hugepages=" << std::boolalpha << book.pool_hugepage_backed()
-              << " hotpath_allocations=" << hotpath_allocations << '
-';
+              << " hotpath_allocations=" << hotpath_allocations << '\n';
 
     efvi::SpscRing<efvi::RxDescriptor, 1u << 16> q;
     constexpr std::size_t qn = 1u << 20;
