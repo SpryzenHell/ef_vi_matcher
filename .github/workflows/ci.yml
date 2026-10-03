@@ -1,0 +1,29 @@
+name: efvi-ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure release
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DEFVI_ENABLE_DPDK=OFF
+
+      - name: Build release
+        run: cmake --build build --parallel
+
+      - name: Test release
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Configure ASan/UBSan
+        run: cmake -S . -B build-asan -DCMAKE_BUILD_TYPE=Debug -DEFVI_ENABLE_DPDK=OFF -DEFVI_ENABLE_SANITIZERS=ON
+
+      - name: Build ASan/UBSan
+        run: cmake --build build-asan --parallel
+
+      - name: Test ASan/UBSan
+        run: ctest --test-dir build-asan --output-on-failure
