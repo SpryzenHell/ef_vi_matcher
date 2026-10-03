@@ -41,8 +41,7 @@ int main() {
     std::cout << "filled=" << st.filled_quantity
               << " trades=" << st.trade_count
               << " best_ask=" << book.best_ask()
-              << " best_ask_qty=" << book.best_ask_qty() << '
-';
+              << " best_ask_qty=" << book.best_ask_qty() << '\n';
 
     return (st.filled_quantity == 125 && book.best_ask_qty() == 25) ? 0 : 1;
 }
