@@ -139,14 +139,12 @@ int main(int argc, char** argv) {
     const auto hotpath_allocations = g_hotpath_allocations.load(std::memory_order_relaxed);
 
     std::ofstream out("efvi_benchmark.csv");
-    out << "operations,elapsed_s,ops_per_sec,p50_us,p99_us,trades,live_orders,pool_used,pool_capacity,pool_mapped_bytes,pool_page_size,pool_hugepages,hotpath_allocations
-";
+    out << "operations,elapsed_s,ops_per_sec,p50_us,p99_us,trades,live_orders,pool_used,pool_capacity,pool_mapped_bytes,pool_page_size,pool_hugepages,hotpath_allocations\n";
     out << options.n << ',' << elapsed << ',' << (static_cast<double>(options.n) / elapsed) << ','
         << percentile(sorted, .50) << ',' << percentile(sorted, .99) << ',' << sink.trades << ','
         << book.live_orders() << ',' << book.pool_used() << ',' << book.pool_capacity() << ','
         << book.pool_mapped_bytes() << ',' << book.pool_page_size() << ','
-        << book.pool_hugepage_backed() << ',' << hotpath_allocations << '
-';
+        << book.pool_hugepage_backed() << ',' << hotpath_allocations << '\n';
 
     std::cout << std::fixed << std::setprecision(3)
               << "operations=" << options.n
@@ -191,8 +189,7 @@ int main(int argc, char** argv) {
     std::cout << "spsc_items=" << qn
               << " spsc_items_per_sec=" << static_cast<double>(qn) / qsec
               << " ring_alignment=" << alignof(decltype(q))
-              << " slot_alignment=64
-";
+              << " slot_alignment=64\n";
 
     return hotpath_allocations == 0 ? 0 : 4;
 }
