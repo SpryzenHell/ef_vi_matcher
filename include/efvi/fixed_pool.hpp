@@ -42,7 +42,8 @@ inline MappedRegion map_pages(std::size_t bytes,PageMode mode,bool strict){
     const auto normal_page=static_cast<std::size_t>(::sysconf(_SC_PAGESIZE));
     const auto try_map=[&](std::size_t page_size,int flags)->MappedRegion{
         const auto len=round_up(bytes,page_size); void* p=::mmap(nullptr,len,PROT_READ|PROT_WRITE,MAP_PRIVATE|MAP_ANONYMOUS|flags,-1,0);
-        if(p==MAP_FAILED)return {}; return {p,len,true,true,page_size};
+        if(p==MAP_FAILED) return {};
+        return {p,len,true,true,page_size};
     };
     if(mode==PageMode::Huge1G||mode==PageMode::Auto){auto r=try_map(1ULL<<30,MAP_HUGETLB|MAP_HUGE_1GB);if(r.valid())return r;if(mode==PageMode::Huge1G&&strict)throw std::runtime_error("1 GiB HUGETLB mapping failed; provision 1 GiB huge pages first");}
     if(mode==PageMode::Huge2M||mode==PageMode::Auto){auto r=try_map(2ULL<<20,MAP_HUGETLB|MAP_HUGE_2MB);if(r.valid())return r;if(mode==PageMode::Huge2M&&strict)throw std::runtime_error("2 MiB HUGETLB mapping failed; provision 2 MiB huge pages first");}
