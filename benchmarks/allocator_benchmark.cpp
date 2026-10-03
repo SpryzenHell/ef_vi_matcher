@@ -29,8 +29,7 @@ int main(int argc, char** argv) {
               << " alloc_ops_per_sec=" << static_cast<double>(n) / alloc_s
               << " free_ops_per_sec=" << static_cast<double>(n) / free_s
               << " stride=" << pool.stride()
-              << " mapped_bytes=" << pool.mapped_bytes() << '
-';
+              << " mapped_bytes=" << pool.mapped_bytes() << '\n';
 
     return pool.used() == 0 ? 0 : 1;
 }
