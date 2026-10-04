@@ -5,7 +5,7 @@ if(NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
   message(FATAL_ERROR "EF_VI Zero-Copy Matcher requires Linux for mmap/HUGETLB and the DPDK dataplane")
 endif()
 
-option(EFVI_ENABLE_DPDK "Build the optional DPDK dataplane" ON)
+option(EFVI_ENABLE_DPDK "Build the optional DPDK dataplane" OFF)
 option(EFVI_BUILD_TESTS "Build correctness/invariant tests" ON)
 option(EFVI_BUILD_BENCHMARKS "Build latency and allocator benchmarks" ON)
 option(EFVI_BUILD_EXAMPLES "Build executable examples" ON)
