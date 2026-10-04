@@ -9,6 +9,7 @@
 
 int main() {
     using Book = efvi::OrderBook<256, 4096, 8192>;
+
     Book::Config cfg{};
     cfg.base_price = 10000;
     cfg.tick_size = 1;
@@ -19,7 +20,9 @@ int main() {
     efvi::SoftwareRxPath rx(buffers.data(), buffers.size());
 
     std::vector<efvi::Trade> trades;
-    auto sink = [&](const efvi::Trade& t) { trades.push_back(t); };
+    auto sink = [&](const efvi::Trade& trade) {
+        trades.push_back(trade);
+    };
 
     buffers[0].order.order_id = 1001;
     buffers[0].order.instrument = 7;
@@ -31,15 +34,13 @@ int main() {
         reinterpret_cast<std::uintptr_t>(&buffers[0].order);
 
     if (!rx.publish(0, 1)) {
-        std::cerr << "failed to publish RX descriptor
-";
+        std::cerr << "failed to publish RX descriptor\n";
         return 1;
     }
 
     efvi::OrderRequest* received = nullptr;
     if (!rx.consume(received)) {
-        std::cerr << "failed to consume RX descriptor
-";
+        std::cerr << "failed to consume RX descriptor\n";
         return 1;
     }
 
@@ -48,23 +49,20 @@ int main() {
 
     const auto status = book.add(*received, sink);
 
-    std::cout << "software RX loopback
-"
-              << "  original_order_address: 0x" << std::hex << original_address << "
-"
-              << "  matcher_order_address:  0x" << received_address << "
-"
+    std::cout << "software RX loopback\n"
+              << "  original_order_address: 0x" << std::hex
+              << original_address << "\n"
+              << "  matcher_order_address:  0x" << received_address << "\n"
               << std::dec
               << "  same_buffer:             " << std::boolalpha
-              << (original_address == received_address) << "
-"
-              << "  rested:                  " << status.rested << "
-"
-              << "  live_orders:             " << book.live_orders() << "
-"
-              << "  rx_pending:              " << rx.pending() << "
-";
+              << (original_address == received_address) << "\n"
+              << "  rested:                  " << status.rested << "\n"
+              << "  live_orders:             " << book.live_orders() << "\n"
+              << "  rx_pending:              " << rx.pending() << "\n";
 
-    return (original_address == received_address && status.rested &&
-            book.live_orders() == 1) ? 0 : 2;
+    return (original_address == received_address &&
+            status.rested &&
+            book.live_orders() == 1)
+               ? 0
+               : 2;
 }
