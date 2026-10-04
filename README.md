@@ -1,131 +1,455 @@
 # EF_VI Zero-Copy Matcher
 
-A Linux/x86-64-oriented deterministic limit-order-book matcher with an explicit low-latency memory path:
+<p align="center">
+  <img src="main.png" alt="EF_VI Zero-Copy Matcher" width="920">
+</p>
 
-`DPDK RX/mempool (optional) -> fixed descriptor ring -> preallocated order pool -> price-time matcher -> trade sink`
+A C++17/Linux limit-order-book matcher built around a fixed memory model, a cache-line-isolated SPSC ring, and an optional DPDK ingress path.
 
-The project targets the engineering ideas in the EF_VI resume entry without depending on a proprietary Solarflare/Xilinx NIC SDK. The DPDK layer models the important ownership pattern: RX buffers are fixed-capacity objects, descriptors carry pointers/metadata, and the matcher consumes the request directly from the buffer before returning the buffer to the pool.
+The project is intended to make the data path easy to inspect and benchmark rather than hide it behind a large framework. The normal build has no external C++ dependencies beyond the compiler, CMake, and POSIX/Linux facilities.
 
-## What is implemented
+## Current status
 
-### 1. Deterministic matching core
+The software path is complete and runnable from a clean Linux checkout.
 
-`include/efvi/order_book.hpp` implements a single-instrument price ladder with:
+The repository includes two different dataplane levels:
 
-- price-time priority using intrusive FIFO queues at each price level;
-- limit, market-IOC, IOC and FOK orders;
-- partial and multi-level fills;
-- cancel and cancel/replace semantics;
-- deterministic trade sequencing;
-- bounded open-addressing order-ID lookup;
-- top-of-book / depth snapshots;
-- a preallocated order pool so the matching path does not call `malloc` after construction.
+1. A **software RX loopback** that uses the same in-place `OrderRequest` object before the matcher sees it. This can be run on any supported Linux machine and is the reference path for the zero-copy memory semantics.
+2. An **optional DPDK adapter** using `rte_mbuf` and `rte_mempool`. This requires DPDK development packages. A real NIC path is host-specific and is not required for the matcher, tests, or reference benchmarks.
 
-Liquibook is the behavioral reference for order properties, price-time matching, cancel/replace, FOK/IOC behavior and depth-level accounting.
+The code also supports explicit 2 MiB and 1 GiB Linux HUGETLB mappings. The benchmark reports which mapping was actually obtained. It does not label a run as a huge-page run when the host falls back to normal pages.
 
-### 2. O(1) allocator with optional 1 GiB HUGETLB backing
+## What is in the repository
 
-`include/efvi/fixed_pool.hpp` reserves the full object arena up front and stores an intrusive free list inside that arena. `allocate()` and `deallocate()` therefore only update pointers/counters after initialization.
+```text
+include/efvi/
+  types.hpp            request, trade, descriptor and book types
+  spsc_ring.hpp        cache-line-isolated SPSC ring
+  fixed_pool.hpp       fixed-capacity allocator and HUGETLB mapping
+  order_book.hpp       deterministic price-time matcher
+  transport.hpp        software RX buffer/descriptor path
+  dpdk_adapter.hpp     optional DPDK interface
 
-The backing-page policy is explicit:
+src/
+  main.cpp             small matcher example
+  hugepage_probe.cpp   Linux huge-page and data-layout probe
+  dpdk_adapter.cpp     optional DPDK implementation
 
-- `--normal`: 4 KiB/host page fallback;
-- `--huge2m`: `MAP_HUGETLB | MAP_HUGE_2MB`;
-- `--huge1g`: `MAP_HUGETLB | MAP_HUGE_1GB`;
-- `Auto`: 1 GiB -> 2 MiB -> normal-page fallback.
+examples/
+  order_flow_demo.cpp
+  software_rx_loopback.cpp
+  dpdk_nic_rx.cpp      optional DPDK capability probe
 
-The allocator reports the actual page size and whether the mapping is backed by hugetlb pages. Nothing is labeled as a huge-page result unless the OS actually supplied the mapping.
+benchmarks/
+  efvi_benchmark.cpp
+  allocator_benchmark.cpp
+  efvi_dpdk_benchmark.cpp
 
-### 3. Cache-line-isolated SPSC ring
+tests/
+  efvi_tests.cpp
 
-`include/efvi/spsc_ring.hpp` is a bounded single-producer/single-consumer queue. Producer and consumer cursors are separated with 64-byte alignment, and each ring slot occupies at least one 64-byte cache line. The implementation uses acquire/release atomics and never allocates after construction.
+docs/
+  architecture.md
+  dpdk.md
+  hugepages.md
+  performance.md
+  benchmark_300k_normal.txt
+  allocator_200k.txt
+  environment.txt
+  images/
 
-### 4. DPDK ingress adapter
+scripts/
+  run.sh
+  benchmark.sh
+  hugepages_check.sh
+  run_perf.sh
+  bootstrap_ubuntu.sh
 
-`include/efvi/dpdk_adapter.hpp` and `src/dpdk_adapter.cpp` provide an optional DPDK path based on `rte_mempool` / `rte_mbuf`.
+Dockerfile
+CMakeLists.txt
+```
 
-`DpdkPacketView` keeps the `rte_mbuf*` and the in-place `OrderRequest*` together so the application cannot lose ownership of the underlying RX buffer. The benchmark releases the exact same mbuf after matching.
+## Quick start
 
-This is a **software loopback / memory-semantics path**. It is not a claim that the test environment has a Solarflare NIC or that an EF_VI firmware datapath was exercised.
-
-## Build
-
-### Reference build
+The quickest path on Ubuntu or another Debian-based Linux machine is:
 
 ```bash
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+git clone https://github.com/SpryzenHell/ef_vi_matcher.git
+cd ef_vi_matcher
+./scripts/bootstrap_ubuntu.sh
+./scripts/run.sh
+```
+
+`run.sh` configures the project with the portable software path, builds it, runs the test suite, and then executes the matcher, software RX loopback, order-flow example, and huge-page probe.
+
+A working session ends with output similar to this:
+
+```text
+EF_VI Zero-Copy Matcher
+  ask rested: true
+  bid filled: true
+  best ask:   10000 ticks
+  ask qty:    40
+  trades:     1
+  pool used:  1
+  pool bytes: 4194304
+
+software RX loopback
+  original_order_address: 0x...
+  matcher_order_address:  0x...
+  same_buffer:             true
+  rested:                  true
+  live_orders:             1
+  rx_pending:              0
+```
+
+The addresses are process-specific and are expected to change between runs.
+
+## Clean build without the helper script
+
+Required tools:
+
+| Requirement | Purpose |
+|---|---|
+| Linux | `mmap`, HUGETLB and DPDK support |
+| C++17 compiler | Build the matcher |
+| CMake 3.20+ | Configure the project |
+| POSIX threads | SPSC benchmark and tests |
+
+On Ubuntu:
+
+```bash
+sudo apt update
+sudo apt install build-essential cmake pkg-config
+```
+
+Then:
+
+```bash
+cmake -S . -B build \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DEFVI_ENABLE_DPDK=OFF \
+  -DEFVI_BUILD_TESTS=ON \
+  -DEFVI_BUILD_BENCHMARKS=ON \
+  -DEFVI_BUILD_EXAMPLES=ON
+
 cmake --build build --parallel
 ctest --test-dir build --output-on-failure
 ```
 
-### ASan/UBSan
+## Run the examples
+
+### Matcher example
+
+```bash
+./build/efvi_matcher
+```
+
+It inserts one resting sell order and then submits a buy order against it. The expected final state is one trade and 40 units remaining at the ask.
+
+### Order-flow example
+
+```bash
+./build/efvi_order_flow_demo
+```
+
+This demonstrates FIFO at a single price level and a partial fill across two resting orders.
+
+### Software RX loopback
+
+```bash
+./build/efvi_software_rx_demo
+```
+
+The example is deliberately small. It writes an `OrderRequest` into a fixed RX buffer, publishes a descriptor containing the buffer address, consumes the descriptor, and passes the same object to the matcher. The important line is:
+
+```text
+same_buffer:             true
+```
+
+That is the software demonstration of the ownership/data-path contract. There is no second heap allocation for the request.
+
+![Software RX loopback](docs/images/software_rx_demo.png)
+
+## Tests
+
+The test suite covers:
+
+- price-time priority and partial fills;
+- matching across multiple price levels;
+- IOC and FOK handling;
+- market IOC orders;
+- cancel and cancel/replace;
+- deterministic trade ordering;
+- fixed-pool exhaustion and reuse;
+- producer/consumer ordering in the SPSC ring;
+- compile-time cache-line/size invariants.
+
+Run it with:
+
+```bash
+ctest --test-dir build --output-on-failure
+```
+
+The project also has a sanitizer build:
 
 ```bash
 cmake -S . -B build-asan \
   -DCMAKE_BUILD_TYPE=Debug \
   -DEFVI_ENABLE_DPDK=OFF \
   -DEFVI_ENABLE_SANITIZERS=ON
+
 cmake --build build-asan --parallel
 ctest --test-dir build-asan --output-on-failure
 ```
 
-### DPDK
+The repository's CI runs the same release and ASan/UBSan test stages.
 
-Install DPDK development headers/pkg-config metadata on the target Linux host:
+![Test run](docs/images/tests_run.png)
+
+## Performance benchmark
+
+The reference benchmark measures two separate things:
+
+1. matcher throughput and sampled p50/p99 latency;
+2. SPSC producer/consumer exchange throughput.
+
+Run:
 
 ```bash
-cmake -S . -B build-dpdk -DCMAKE_BUILD_TYPE=Release -DEFVI_ENABLE_DPDK=ON
+./build/efvi_benchmark 300000 --normal
+```
+
+The benchmark also writes `efvi_benchmark.csv` in the current working directory.
+
+The following numbers are from the local Linux run used for the repository documentation on 2026-10-04:
+
+| Metric | Measured value |
+|---|---:|
+| Matcher operations | 300,000 |
+| Matcher throughput | 20.66 M ops/s |
+| Matcher p50 | 0.157 us |
+| Matcher p99 | 1.648 us |
+| SPSC exchange | 78.93 M items/s |
+| Matching-loop global `new` calls | 0 |
+| Allocator stride | 64 bytes |
+| Benchmark pool mapping | 64 MiB |
+| Actual page size | 4096 bytes |
+| HUGETLB backing | false |
+
+These measurements are a reference for the checked-in code, not a hardware-independent performance guarantee. CPU frequency, scheduling, compiler version, kernel configuration, cache state, and process placement all affect latency numbers.
+
+![Matcher latency](docs/images/benchmark_latency.png)
+
+![Measured throughput](docs/images/benchmark_throughput.png)
+
+The raw command output is checked in as [`docs/benchmark_300k_normal.txt`](docs/benchmark_300k_normal.txt).
+
+## Allocator benchmark
+
+The allocator benchmark exercises the fixed pool directly:
+
+```bash
+./build/efvi_allocator_benchmark 200000
+```
+
+The local run used for the documentation produced:
+
+```text
+objects=200000 alloc_ops_per_sec=84416751.998 free_ops_per_sec=354869789.403 stride=64 mapped_bytes=12800000
+```
+
+Allocation and free operations are pointer manipulation on the pre-built intrusive free list. The mapping itself is created before the timed loop.
+
+![Allocator benchmark](docs/images/allocator_run.png)
+
+## Huge pages
+
+The fixed pool supports four modes:
+
+| Mode | Behaviour |
+|---|---|
+| `normal` | regular Linux pages / aligned heap fallback |
+| `huge2m` | request 2 MiB HUGETLB pages |
+| `huge1g` | request 1 GiB HUGETLB pages |
+| `auto` | use the largest suitable HUGETLB mode available, then fall back |
+
+Inspect the host:
+
+```bash
+./build/efvi_hugepage_probe
+```
+
+On the documentation host, the kernel reported zero reserved 1 GiB and 2 MiB hugetlb pages, so the allocator correctly used normal 4 KiB pages.
+
+![Huge-page probe](docs/images/hugepage_probe.png)
+
+Strict mode is useful when a benchmark must not silently fall back:
+
+```bash
+./build/efvi_benchmark 10000 --huge1g --strict
+```
+
+On a host without the required 1 GiB hugetlb page, the program exits with an explicit error rather than reporting a fake 1 GiB-page result.
+
+![Strict huge-page check](docs/images/hugepage_strict_failure.png)
+
+The project does not claim a TLB-miss reduction until a matched normal-page/1-GiB-page experiment has been collected with processor-specific `perf` counters.
+
+See [docs/hugepages.md](docs/hugepages.md) and [docs/performance.md](docs/performance.md) for the measurement procedure.
+
+## DPDK build
+
+DPDK is optional. The default build is intentionally usable without it.
+
+On Ubuntu 24.04, the distribution provides the `libdpdk-dev` development package. See the [Ubuntu package index](https://packages.ubuntu.com/libdpdk-dev).
+
+Install it with:
+
+```bash
+sudo apt update
+sudo apt install libdpdk-dev
+```
+
+Then configure the DPDK build:
+
+```bash
+cmake -S . -B build-dpdk \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DEFVI_ENABLE_DPDK=ON
+
 cmake --build build-dpdk --parallel
 ```
 
-When `libdpdk` is discoverable through pkg-config, CMake additionally builds `efvi_dpdk`, `efvi_dpdk_benchmark`, and `efvi_dpdk_nic_rx_probe`.
+When CMake finds DPDK through `pkg-config`, it builds the optional `efvi_dpdk` library, DPDK benchmark, and NIC capability probe.
 
-## Benchmarks
+The DPDK code uses `rte_mempool`/`rte_mbuf` ownership and keeps the owner pointer beside the in-place request pointer. A real NIC receive loop should feed buffers from `rte_eth_rx_burst()` into the same ownership model.
+
+The repository does **not** claim that a particular NIC was exercised by CI. NIC configuration, PCI binding, queues, NUMA placement and driver setup depend on the target machine.
+
+See [docs/dpdk.md](docs/dpdk.md).
+
+## Docker
+
+For a clean reference build without installing a compiler on the host:
 
 ```bash
-mkdir -p results
-(cd results && ../build/efvi_benchmark 300000 --normal)
-(cd results && ../build/efvi_allocator_benchmark 100000)
+docker build -t efvi-zero-copy-matcher .
+docker run --rm efvi-zero-copy-matcher
 ```
 
-For a host with actual 1 GiB hugetlb pages:
+The Docker image runs the same software build and test path. DPDK and physical NIC access are intentionally outside the container's default path.
+
+## Design notes
+
+### Deterministic matching
+
+The matcher uses a fixed price ladder. Each price level contains an intrusive FIFO of live orders. Matching starts at the best opposite-side price and consumes the oldest order at that level before moving to the next level.
+
+A monotonic sequence number is assigned when an order is accepted. Trade events get their own monotonic sequence number. There is no background matching thread, timer, or worker pool in the reference implementation.
+
+### Order lookup
+
+Cancellations arrive by order ID, so the matcher keeps a fixed-capacity open-addressed lookup table alongside the price ladder. The table is created once and does not use `std::unordered_map` on the matching path.
+
+### Fixed allocator
+
+`FixedPool<T>` reserves the arena once and links free slots together inside the arena. After initialization, `allocate()` and `deallocate()` only manipulate pointers and a counter. This keeps the object allocation path bounded and avoids general-purpose allocator calls for new orders.
+
+### Cache-line isolation
+
+The SPSC ring aligns the ring object, producer cursor, consumer cursor and individual slots to 64-byte boundaries. Producer and consumer use acquire/release ordering and only one producer and one consumer are supported by design.
+
+The alignment is an implementation choice for the target x86 cache-line assumption; it is not a claim that 64 bytes is universal for every architecture.
+
+## Evidence and reproducibility
+
+The repository keeps the raw benchmark outputs used for the README:
+
+- [`docs/benchmark_300k_normal.txt`](docs/benchmark_300k_normal.txt)
+- [`docs/allocator_200k.txt`](docs/allocator_200k.txt)
+- [`docs/environment.txt`](docs/environment.txt)
+
+The screenshots under `docs/images/` are generated from those actual command outputs, not from placeholder values.
+
+![Application run](docs/images/application_run.png)
+
+![Benchmark output](docs/images/benchmark_run.png)
+
+![Local environment](docs/images/environment.png)
+
+![Data layout](docs/images/data_layout.png)
+
+## Local reference environment
+
+```text
+Linux 6.18.44 x86_64 GNU/Linux
+c++ (Debian 14.2.0-19) 14.2.0
+cmake version 3.31.6
+DPDK: not installed
+HugePages_Total: 0
+HugePages_Free: 0
+HugePages_Rsvd: 0
+Hugepagesize: 2048 kB
+Hugetlb: 0 kB
+Intel Xeon Platinum 8573C
+```
+
+Exact environment output is kept in [docs/environment.txt](docs/environment.txt).
+
+## Troubleshooting
+
+### CMake cannot find a compiler
+
+Install the base build toolchain:
 
 ```bash
-(cd results && ../build/efvi_benchmark 1000000 --huge1g --strict)
+sudo apt update
+sudo apt install build-essential cmake pkg-config
 ```
 
-The benchmark reports p50/p99 latency, throughput, SPSC exchange throughput, actual backing page size, hugetlb status, and a global C++ `new` counter for the measured matcher loop.
+### Huge-page mode exits with an error
 
-## TLB evidence
+That is expected in strict mode when the kernel has not reserved the requested HUGETLB page size. Check:
 
-A TLB-miss reduction is a hardware-counter claim, not something to infer from source code. On the target CPU run both normal-page and strict 1 GiB-page benchmarks under processor-specific `perf stat` events from `perf list`. The repository intentionally does not publish a TLB-miss percentage until that experiment has actually been run.
+```bash
+grep -E 'HugePages|Hugepagesize|Hugetlb' /proc/meminfo
+./scripts/hugepages_check.sh
+```
 
-## DPDK dataplane semantics
+### DPDK targets do not appear
 
-The DPDK flow is:
+CMake only enables them when `libdpdk` is discoverable through `pkg-config`. Check:
 
-1. provision packet buffers with `rte_mempool`/`rte_mbuf`;
-2. publish the mbuf pointer + sequence through the bounded descriptor ring;
-3. obtain `OrderRequest*` directly from the mbuf data area;
-4. match in-place;
-5. return the same mbuf to the DPDK pool.
+```bash
+pkg-config --modversion libdpdk
+```
 
-A production NIC path should substitute `rte_eth_rx_burst()` for the software submit/receive boundary while preserving the same ownership contract.
+If it is missing, install the DPDK development package and configure again from a fresh `build-dpdk` directory.
+
+### Running on Windows or macOS
+
+The maintained project is Linux-only because the memory and dataplane work depends on Linux `mmap`/HUGETLB and optional DPDK support.
 
 ## Upstream components
 
-The original project configuration names Liquibook, LightMatchingEngine and atomic_queue. Their roles are:
+The original project specification identifies these three repositories as inputs:
 
-- Liquibook: matching/depth behavior;
-- LightMatchingEngine: compact order/trade API and behavioral reference;
-- atomic_queue: bounded lock-free queue patterns, cache-line contention avoidance and huge-page allocator techniques.
+| Component | Repository | Used for |
+|---|---|---|
+| Liquibook | `objectcomputing/LiquiBook` / `enewhuis/liquibook` | order-book and matching behaviour |
+| LightMatchingEngine | `gavincyi/LightMatchingEngine` | compact matching-engine examples and API ideas |
+| atomic_queue | `max0x7ba/atomic_queue` | bounded queue, false-sharing and huge-page implementation ideas |
 
-The repository already contains a pre-existing mechanically rewritten merge of those sources under `efviSrc/`, `lightmatchingengine/`, and `includes/atomic_queue/`. The maintained build path is the clean `include/efvi` + `src` implementation so the old rewrite cannot contaminate compilation.
+The maintained EFVI implementation is deliberately separated from the inherited source snapshot so that the active CMake build has one clear code path. See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) before redistributing inherited source files.
 
-See `THIRD_PARTY_NOTICES.md`.
+## What is intentionally not claimed
 
-## Verification note
+This repository provides the implementation needed to run the software path, but some results depend on hardware that is not present on every machine:
 
-The first local validation machine had GCC 14.2, no DPDK pkg-config package, and zero configured 1 GiB/2 MiB hugetlb pages. On that machine, the reference benchmark processed 300K matching operations at about 18M ops/s with p50 around 0.16 microseconds, p99 around 1.87 microseconds, zero measured global `new` calls in the matching loop, and roughly 20M SPSC exchanges/sec.
+- no Solarflare/Xilinx EF_VI NIC is assumed by the reference build;
+- no DPDK NIC benchmark is reported unless DPDK and a configured NIC are actually available;
+- no TLB-miss percentage is published without a real `perf` comparison;
+- the reference benchmark numbers above are local measurements, not guarantees for a production trading system.
 
-Those numbers are machine-specific development observations, not universal performance guarantees and not the original resume claims.
+That separation is intentional. It keeps the source, benchmark output, and README consistent with what was actually executed.
