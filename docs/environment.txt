@@ -1,0 +1,19 @@
+--- system ---
+Linux 6.18.44 x86_64 GNU/Linux
+--- compiler ---
+c++ (Debian 14.2.0-19) 14.2.0
+--- cmake ---
+cmake version 3.31.6
+--- dpdk ---
+not installed
+--- hugepages ---
+HugePages_Total:       0
+HugePages_Free:        0
+HugePages_Rsvd:        0
+Hugepagesize:       2048 kB
+Hugetlb:               0 kB
+--- cpu ---
+CPU(s):                                  3
+Model name:                              INTEL(R) XEON(R) PLATINUM 8573C
+Thread(s) per core:                      1
+Core(s) per socket:                      3
