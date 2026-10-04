@@ -61,6 +61,11 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+      - name: Build and run Docker reference image
+        run: |
+          docker build -t efvi-zero-copy-matcher:ci .
+          docker run --rm efvi-zero-copy-matcher:ci
+
       - name: Generate README figures from reference run
         run: python3 scripts/render_readme_assets.py docs/reference_run/ci_61 docs/images
 
