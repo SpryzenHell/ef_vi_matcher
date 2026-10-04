@@ -1,3 +1,7 @@
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
+
 #include "efvi/fixed_pool.hpp"
 #include "efvi/order_book.hpp"
 #include "efvi/spsc_ring.hpp"
