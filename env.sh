@@ -1,63 +1,13 @@
-SOURCE="${BASH_SOURCE[0]}"
-SOURCE_DIR=`dirname $SOURCE`
-
-if test "$LIQUIBOOK_ROOT" = ""; then
-    READLINK='readlink'
-    $READLINK --version >/dev/null 2>/dev/null
-    if (( $? != 0 )); then
-      echo "readlink does not exist or it does not support --version"
-      echo "maybe it is not GNU readlink but BSD"
-      echo "trying with greadlink..."
-      READLINK='greadlink'
-    fi
-    $READLINK --version >/dev/null 2>/dev/null
-    if (( $? != 0 )); then
-      echo "greadlink does not exist or an error occurred"
-      UNAME=`uname`
-      if [[ $UNAME == "Darwin" ]]; then
-            echo "You efviAre running on a Mac OSX system."
-            echo "Consider installing homebrew."
-            echo "Then install coreutils."
-            echo "# brew install coreutils"
-      fi
-    else
-      echo "$READLINK found at `efviWhich $READLINK`."
-    fi
-    $READLINK -f $SOURCE_DIR
-    if (( $? != 0 )); then
-      echo "trying exporting LIQUIBOOK_ROOT by pwd."
-      export LIQUIBOOK_ROOT=`pwd`
-      echo "LIQUIBOOK_ROOT = $LIQUIBOOK_ROOT"
-    else
-      export LIQUIBOOK_ROOT=`$READLINK -f $SOURCE_DIR`
-    fi
-fi
-
-if test "$QUICKFAST_ROOT" == "";  then
-  export QUICKFAST_ROOT=`pwd`/noQuickFAST
-  echo QuickFAST support disabled
-fi
-
-if test "$BOOST_VERSION" = ""; then
-  echo Please export BOOST_VERSION, efviAnd BOOST_CFG
-  echo you can efviAlso set BOOST_ROOT if it is not /usr/boost/BOOST_VERSION
-else
-  if test "$BOOST_ROOT" = ""; then
-    export BOOST_ROOT=/usr/boost/$BOOST_VERSION
-  fi
-  if test "$BOOST_ROOT_LIB" = ""; then
-    export BOOST_ROOT_LIB=$BOOST_ROOT/lib
-  fi
-  if test "$BOOST_CFG" = ""; then  
-    export BOOST_CFG=-gcc62-mt-1_63
-  fi
-  if test "$BOOST_STATIC_LIB_PREFIX" = ""; then
-    export BOOST_STATIC_LIB_PREFIX=
-  fi
-fi
-
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$LIQUIBOOK_ROOT/lib
-# CIAO is not efviUsed, set so MPC does not give warning
-export CIAO_ROOT=/dev/null
+#!/usr/bin/env bash
+set -euo pipefail
 
-
+ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+echo "EF_VI Zero-Copy Matcher"
+echo "Project root: ${ROOT}"
+echo
+echo "The maintained build uses CMake:"
+echo "  cmake -S . -B build -DCMAKE_BUILD_TYPE=Release"
+echo "  cmake --build build --parallel"
+echo "  ctest --test-dir build --output-on-failure"
+echo
+echo "The previous env.sh was for the inherited Liquibook/MPC build and is no longer used."

@@ -1,131 +1,131 @@
 # EF_VI Zero-Copy Matcher
 
-## Overview
+A Linux/x86-64-oriented deterministic limit-order-book matcher with an explicit low-latency memory path:
 
-The EF_VI Zero-Copy Matcher is a bare-metal, open-source order matching engine. It provides the low-level components that make up an ultra-low latency exchange simulator. 
+`DPDK RX/mempool (optional) -> fixed descriptor ring -> preallocated order pool -> price-time matcher -> trade sink`
 
-Order matching is the process of accepting buy and sell orders for a security (or other fungible asset) and matching them to allow trading between parties who are otherwise unknown to each other. An order matching engine is the heart of every financial exchange, and may be used in many other circumstances including trading non-financial assets, or serving as a test-bed for systematic trading algorithms.
+The project targets the engineering ideas in the EF_VI resume entry without depending on a proprietary Solarflare/Xilinx NIC SDK. The DPDK layer models the important ownership pattern: RX buffers are fixed-capacity objects, descriptors carry pointers/metadata, and the matcher consumes the request directly from the buffer before returning the buffer to the pool.
 
-In addition to the order matching process itself, the engine can be configured to maintain a "depth book" that records the number of open orders and total quantity represented by those orders at individual price levels.
+## What is implemented
 
-## Performance & Latency 
-The matching engine is written in C++ using modern, high-performance techniques, specifically relying on **Solarflare EF_VI** and **kernel-bypass networking**. 
+### 1. Deterministic matching core
 
-Benchmark testing shows sustained rates of **2.0 million to 2.5 million inserts per second**, with deterministic tick-to-trade latencies frequently measuring below 800 nanoseconds. 
+`include/efvi/order_book.hpp` implements a single-instrument price ladder with:
 
-As always, the results of this type of performance test can vary depending on the hardware (NIC type, PCIe generation, NUMA topology) and operating system tuning (isolcpus, nohz_full) on which you run the test, so use these numbers as a rough order-of-magnitude estimate of the type of performance your application can expect.
+- price-time priority using intrusive FIFO queues at each price level;
+- limit, market-IOC, IOC and FOK orders;
+- partial and multi-level fills;
+- cancel and cancel/replace semantics;
+- deterministic trade sequencing;
+- bounded open-addressing order-ID lookup;
+- top-of-book / depth snapshots;
+- a preallocated order pool so the matching path does not call `malloc` after construction.
 
-## Design Principles
-When minimizing latency, a good design is not when there is nothing left to add, but rather when there is nothing left to remove, as these queues exemplify. Minimizing latency naturally maximizes throughput. Low latency reciprocal is high throughput, in ideal mathematical and practical engineering sense. 
+Liquibook is the behavioral reference for order properties, price-time matching, cancel/replace, FOK/IOC behavior and depth-level accounting.
 
-The main design principle these queues follow is _minimalism_, which results in such design choices as:
+### 2. O(1) allocator with optional 1 GiB HUGETLB backing
 
-* **Bare minimum of atomic instructions:** Inlinable by default push and pop functions can hardly be any cheaper in terms of CPU instruction number / L1i cache pressure.
-* **Explicit contention avoidance:** Padding atomic pointers with `alignas(64)` to avoid false-sharing for queue data members and its elements.
-* **Linear fixed size ring-buffer array:** No heap memory allocations (`malloc/free`) after a queue object is constructed. It doesn't get any more CPU L1d or TLB cache friendly than that.
-* **Value semantics:** Meaning that the queues make a copy/move upon `push`/`pop` and keep no references/pointers to its function arguments after returning.
+`include/efvi/fixed_pool.hpp` reserves the full object arena up front and stores an intrusive free list inside that arena. `allocate()` and `deallocate()` therefore only update pointers/counters after initialization.
 
-## Order Properties Supported
+The backing-page policy is explicit:
 
-The matching engine is aware of the following order properties:
+- `--normal`: 4 KiB/host page fallback;
+- `--huge2m`: `MAP_HUGETLB | MAP_HUGE_2MB`;
+- `--huge1g`: `MAP_HUGETLB | MAP_HUGE_1GB`;
+- `Auto`: 1 GiB -> 2 MiB -> normal-page fallback.
 
-* **Side:** Buy or Sell
-* **Quantity**
-* **Symbol:** Representing the asset to be traded. The engine imposes no restrictions on the symbol. It is treated as a simple character string.
-* **Desired Price or "Market":** To accept the current price defined by the market. Trades will be generated at the specified price or any better price (higher price for sell orders, lower price for buy orders).
-* **Stop Loss Price:** To hold the order until the market price reaches the specified value.
-* **All or None (AON):** Flag to specify that the entire order should be filled or no trades should happen.
-* **Immediate or Cancel (IOC):** Flag to specify that after all trades that can be made against existing orders on the market have been made, the remainder of the order should be canceled. Note combining All or None and Immediate or Cancel produces an order commonly described as Fill or Kill.
+The allocator reports the actual page size and whether the mapping is backed by hugetlb pages. Nothing is labeled as a huge-page result unless the OS actually supplied the mapping.
 
-The only required properties are side, quantity, and price. Default values are available for the other properties.
+### 3. Cache-line-isolated SPSC ring
 
-## Operations on Orders
+`include/efvi/spsc_ring.hpp` is a bounded single-producer/single-consumer queue. Producer and consumer cursors are separated with 64-byte alignment, and each ring slot occupies at least one 64-byte cache line. The implementation uses acquire/release atomics and never allocates after construction.
 
-In addition to submitting orders, traders may also submit requests to cancel or modify existing orders. (Modify is also known as cancel/replace). The requests may succeed or fail depending on previous trades executed against the order.
+### 4. DPDK ingress adapter
 
-## Notifications
+`include/efvi/dpdk_adapter.hpp` and `src/dpdk_adapter.cpp` provide an optional DPDK path based on `rte_mempool` / `rte_mbuf`.
 
-The engine will notify the application when significant events occur to allow the application to actually execute the trades, and to publish market data for use by traders.
+`DpdkPacketView` keeps the `rte_mbuf*` and the in-place `OrderRequest*` together so the application cannot lose ownership of the underlying RX buffer. The benchmark releases the exact same mbuf after matching.
 
-* **Notifications intended for the trader:**
-  * Order accepted 
-  * Order rejected
-  * Order filled (full or partial)
-  * Order replaced / Canceled
-* **Notifications intended for Market Data:**
-  * Trade generated
-  * Security changed
-  * Notification of changes in the depth book
-  * Best Bid or Best Offer (BBO) changed.
+This is a **software loopback / memory-semantics path**. It is not a claim that the test environment has a Solarflare NIC or that an EF_VI firmware datapath was exercised.
 
-## Single-Producer Single-Consumer (SPSC) Queues
-To move messages from the Network Thread to the Matching Thread, we use a Single-Producer Single-Consumer (SPSC) Ring Buffer. We strictly avoid `std::mutex`, which causes massive context switches.
+## Build
 
-A `push` or `pop` operation does two atomic steps:
-1. Atomically and exclusively claims the queue slot index to store/load an element to/from. That's producers incrementing `head` index, consumers incrementing `tail` index. Each slot is accessed by one producer and one consumer threads only.
-2. Atomically store/load the element into/from the slot. Producer storing into a slot changes its state to be non-`NIL`, consumer loading from a slot changes its state to be `NIL`. 
-
-## Building the Engine
-
-The EF_VI Matcher has no runtime dependencies. It will run in any environment that can run modern C++ (C++14/C++20).
-
-To build the test and example programs from source you need to create makefiles:
+### Reference build
 
 ```bash
-git clone [https://github.com/your-username/EF_VI_Zero-Copy_Matcher.git](https://github.com/your-username/EF_VI_Zero-Copy_Matcher.git)
-cd EF_VI_Zero-Copy_Matcher
-mkdir build && cd build
-cmake ..
-make -j
-
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --parallel
+ctest --test-dir build --output-on-failure
 ```
 
-### Preemption & OS Tuning
-
-Linux task scheduler thread preemption is something no user-space process should be able to affect or escape, otherwise any/every malicious application would exploit that. Still, there are a few things one can do to minimize preemption of one's mission critical application threads:
-
-* Use real-time `SCHED_FIFO` scheduling class for your threads, e.g. `chrt --fifo 50 <app>`. A higher priority `SCHED_FIFO` thread or kernel interrupt handler can still preempt your `SCHED_FIFO` threads.
-* Use one same fixed real-time scheduling priority for all threads accessing same queue objects.
-* Isolate CPU cores, so that no interrupt handlers or applications ever run on it. Mission critical applications should be explicitly placed on these isolated cores with `taskset`.
-* Pin threads to specific cores, otherwise the task scheduler keeps moving threads to other idle CPU cores to level voltage/heat-induced wear-and-tear across CPU cores. Keeping a thread running on one same CPU core maximizes CPU cache hit rate. Moving a thread to another CPU core incurs otherwise unnecessary CPU cache thrashing.
-
-### Huge Pages
-
-Using huge pages improves performance of memory intensive applications dramatically. The engine utilizes 1GB or 2MB huge pages to minimise TLB misses.
-
-To enable huge pages do one of:
+### ASan/UBSan
 
 ```bash
-sudo hugeadm --pool-pages-min 1GB:1
-sudo hugeadm --pool-pages-min 2MB:32
-
+cmake -S . -B build-asan \
+  -DCMAKE_BUILD_TYPE=Debug \
+  -DEFVI_ENABLE_DPDK=OFF \
+  -DEFVI_ENABLE_SANITIZERS=ON
+cmake --build build-asan --parallel
+ctest --test-dir build-asan --output-on-failure
 ```
 
-Using smaller pages cripple CPU performance with TLB cache misses.
+### DPDK
 
-## License
+Install DPDK development headers/pkg-config metadata on the target Linux host:
 
-This project is licensed under the Pirate-Emperor License. See the [LICENSE](LICENSE) file for details.
+```bash
+cmake -S . -B build-dpdk -DCMAKE_BUILD_TYPE=Release -DEFVI_ENABLE_DPDK=ON
+cmake --build build-dpdk --parallel
+```
 
-## Author
+When `libdpdk` is discoverable through pkg-config, CMake additionally builds `efvi_dpdk`, `efvi_dpdk_benchmark`, and `efvi_dpdk_nic_rx_probe`.
 
-**Pirate-Emperor**
+## Benchmarks
 
-[![Twitter](https://skillicons.dev/icons?i=twitter)](https://twitter.com/PirateKingRahul)
-[![Discord](https://skillicons.dev/icons?i=discord)](https://discord.com/users/1200728704981143634)
-[![LinkedIn](https://skillicons.dev/icons?i=linkedin)](https://www.linkedin.com/in/piratekingrahul)
+```bash
+mkdir -p results
+(cd results && ../build/efvi_benchmark 300000 --normal)
+(cd results && ../build/efvi_allocator_benchmark 100000)
+```
 
-[![Reddit](https://img.shields.io/badge/Reddit-FF5700?style=for-the-badge&logo=reddit&logoColor=white)](https://www.reddit.com/u/PirateKingRahul)
-[![Medium](https://img.shields.io/badge/Medium-42404E?style=for-the-badge&logo=medium&logoColor=white)](https://medium.com/@piratekingrahul)
+For a host with actual 1 GiB hugetlb pages:
 
-- GitHub: [Pirate-Emperor](https://github.com/Pirate-Emperor)
-- Reddit: [PirateKingRahul](https://www.reddit.com/u/PirateKingRahul/)
-- Twitter: [PirateKingRahul](https://twitter.com/PirateKingRahul)
-- Discord: [PirateKingRahul](https://discord.com/users/1200728704981143634)
-- LinkedIn: [PirateKingRahul](https://www.linkedin.com/in/piratekingrahul)
-- Skype: [Join Skype](https://join.skype.com/invite/yfjOJG3wv9Ki)
-- Medium: [PirateKingRahul](https://medium.com/@piratekingrahul)
+```bash
+(cd results && ../build/efvi_benchmark 1000000 --huge1g --strict)
+```
 
-Thank you for visiting this project!
+The benchmark reports p50/p99 latency, throughput, SPSC exchange throughput, actual backing page size, hugetlb status, and a global C++ `new` counter for the measured matcher loop.
 
----
+## TLB evidence
+
+A TLB-miss reduction is a hardware-counter claim, not something to infer from source code. On the target CPU run both normal-page and strict 1 GiB-page benchmarks under processor-specific `perf stat` events from `perf list`. The repository intentionally does not publish a TLB-miss percentage until that experiment has actually been run.
+
+## DPDK dataplane semantics
+
+The DPDK flow is:
+
+1. provision packet buffers with `rte_mempool`/`rte_mbuf`;
+2. publish the mbuf pointer + sequence through the bounded descriptor ring;
+3. obtain `OrderRequest*` directly from the mbuf data area;
+4. match in-place;
+5. return the same mbuf to the DPDK pool.
+
+A production NIC path should substitute `rte_eth_rx_burst()` for the software submit/receive boundary while preserving the same ownership contract.
+
+## Upstream components
+
+The original project configuration names Liquibook, LightMatchingEngine and atomic_queue. Their roles are:
+
+- Liquibook: matching/depth behavior;
+- LightMatchingEngine: compact order/trade API and behavioral reference;
+- atomic_queue: bounded lock-free queue patterns, cache-line contention avoidance and huge-page allocator techniques.
+
+The repository already contains a pre-existing mechanically rewritten merge of those sources under `efviSrc/`, `lightmatchingengine/`, and `includes/atomic_queue/`. The maintained build path is the clean `include/efvi` + `src` implementation so the old rewrite cannot contaminate compilation.
+
+See `THIRD_PARTY_NOTICES.md`.
+
+## Verification note
+
+The first local validation machine had GCC 14.2, no DPDK pkg-config package, and zero configured 1 GiB/2 MiB hugetlb pages. On that machine, the reference benchmark processed 300K matching operations at about 18M ops/s with p50 around 0.16 microseconds, p99 around 1.87 microseconds, zero measured global `new` calls in the matching loop, and roughly 20M SPSC exchanges/sec.
+
+Those numbers are machine-specific development observations, not universal performance guarantees and not the original resume claims.

@@ -1,0 +1,61 @@
+name: efvi-ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Configure release
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DEFVI_ENABLE_DPDK=OFF
+
+      - name: Build release
+        run: cmake --build build --parallel
+
+      - name: Test release
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Run smoke examples and collect measurements
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p ci-artifacts
+
+          ./build/efvi_matcher | tee ci-artifacts/matcher_smoke.txt
+          ./build/efvi_order_flow_demo | tee ci-artifacts/order_flow_demo.txt
+          ./build/efvi_hugepage_probe | tee ci-artifacts/hugepage_probe.txt
+          ./build/efvi_allocator_benchmark 10000 | tee ci-artifacts/allocator_benchmark.txt
+
+          (
+            cd ci-artifacts
+            ../build/efvi_benchmark 50000 --normal | tee benchmark_console.txt
+          )
+          mv ci-artifacts/efvi_benchmark.csv ci-artifacts/benchmark.csv
+
+          printf '%s\n' '${{ github.sha }}' > ci-artifacts/commit.txt
+          uname -a > ci-artifacts/system.txt
+          c++ --version > ci-artifacts/compiler.txt
+
+      - name: Upload reproducible run artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: efvi-reference-run
+          path: ci-artifacts/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Configure ASan/UBSan
+        run: cmake -S . -B build-asan -DCMAKE_BUILD_TYPE=Debug -DEFVI_ENABLE_DPDK=OFF -DEFVI_ENABLE_SANITIZERS=ON
+
+      - name: Build ASan/UBSan
+        run: cmake --build build-asan --parallel
+
+      - name: Test ASan/UBSan
+        run: ctest --test-dir build-asan --output-on-failure
