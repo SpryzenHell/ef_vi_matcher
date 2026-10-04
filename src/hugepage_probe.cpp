@@ -26,7 +26,11 @@ int main() {
                   << " base=" << p.base()
                   << " page_size=" << p.page_size()
                   << " hugepage_backed=" << std::boolalpha << p.hugepage_backed() << "\n";
-        std::cout << "allocator_mode=auto (1GiB -> 2MiB -> normal fallback)\n";
+        std::cout << "allocator_mode=auto (1GiB -> 2MiB -> normal fallback)\n"
+                  << "order_request_size=" << sizeof(efvi::OrderRequest)
+                  << " order_request_align=" << alignof(efvi::OrderRequest)
+                  << " rx_descriptor_size=" << sizeof(efvi::RxDescriptor)
+                  << " rx_descriptor_align=" << alignof(efvi::RxDescriptor) << "\n";
     } catch (const std::exception& e) {
         std::cerr << "allocator probe failed: " << e.what() << '\n';
         return 1;
