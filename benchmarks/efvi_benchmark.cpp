@@ -87,6 +87,7 @@ Options parse_options(int argc, char** argv) {
 }
 
 int main(int argc, char** argv) {
+    try {
     const auto options = parse_options(argc, argv);
 
     Book::Config cfg{};
@@ -191,4 +192,8 @@ int main(int argc, char** argv) {
               << " slot_alignment=64\n";
 
     return hotpath_allocations == 0 ? 0 : 4;
+    } catch (const std::exception& e) {
+        std::cerr << "benchmark error: " << e.what() << "\n";
+        return 2;
+    }
 }

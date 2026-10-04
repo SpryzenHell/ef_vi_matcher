@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="50" y="68" fill="#23282f" font-family="DejaVu Sans, sans-serif" font-size="32">Runtime data path</text>
+<text x="50" y="100" fill="#707883" font-family="DejaVu Sans, sans-serif" font-size="17">Maintained software path; DPDK is optional.</text>
+<rect x="50" y="155" width="250" height="125" rx="14" fill="#f7f8fa" stroke="#bfc6cf" stroke-width="2"/>
+<text x="175.0" y="207" text-anchor="middle" fill="#25303a" font-family="DejaVu Sans, sans-serif" font-size="21">NIC / DPDK</text>
+<text x="175.0" y="238" text-anchor="middle" fill="#69727d" font-family="DejaVu Sans, sans-serif" font-size="16">optional ingress</text>
+<rect x="310" y="155" width="250" height="125" rx="14" fill="#f7f8fa" stroke="#bfc6cf" stroke-width="2"/>
+<text x="435.0" y="207" text-anchor="middle" fill="#25303a" font-family="DejaVu Sans, sans-serif" font-size="21">RX buffer</text>
+<text x="435.0" y="238" text-anchor="middle" fill="#69727d" font-family="DejaVu Sans, sans-serif" font-size="16">rte_mbuf or software</text>
+<rect x="570" y="155" width="250" height="125" rx="14" fill="#f7f8fa" stroke="#bfc6cf" stroke-width="2"/>
+<text x="695.0" y="207" text-anchor="middle" fill="#25303a" font-family="DejaVu Sans, sans-serif" font-size="21">Descriptor ring</text>
+<text x="695.0" y="238" text-anchor="middle" fill="#69727d" font-family="DejaVu Sans, sans-serif" font-size="16">SPSC, 64-byte slots</text>
+<rect x="830" y="155" width="250" height="125" rx="14" fill="#f7f8fa" stroke="#bfc6cf" stroke-width="2"/>
+<text x="955.0" y="207" text-anchor="middle" fill="#25303a" font-family="DejaVu Sans, sans-serif" font-size="21">OrderRequest</text>
+<text x="955.0" y="238" text-anchor="middle" fill="#69727d" font-family="DejaVu Sans, sans-serif" font-size="16">read in place</text>
+<rect x="1090" y="155" width="250" height="125" rx="14" fill="#f7f8fa" stroke="#bfc6cf" stroke-width="2"/>
+<text x="1215.0" y="207" text-anchor="middle" fill="#25303a" font-family="DejaVu Sans, sans-serif" font-size="21">Matcher</text>
+<text x="1215.0" y="238" text-anchor="middle" fill="#69727d" font-family="DejaVu Sans, sans-serif" font-size="16">price-time priority</text>
+<rect x="310" y="420" width="250" height="125" rx="14" fill="#f7f8fa" stroke="#bfc6cf" stroke-width="2"/>
+<text x="435.0" y="472" text-anchor="middle" fill="#25303a" font-family="DejaVu Sans, sans-serif" font-size="21">Order pool</text>
+<text x="435.0" y="503" text-anchor="middle" fill="#69727d" font-family="DejaVu Sans, sans-serif" font-size="16">O(1) allocation</text>
+<rect x="570" y="420" width="250" height="125" rx="14" fill="#f7f8fa" stroke="#bfc6cf" stroke-width="2"/>
+<text x="695.0" y="472" text-anchor="middle" fill="#25303a" font-family="DejaVu Sans, sans-serif" font-size="21">Price ladder</text>
+<text x="695.0" y="503" text-anchor="middle" fill="#69727d" font-family="DejaVu Sans, sans-serif" font-size="16">FIFO at each level</text>
+<rect x="830" y="420" width="250" height="125" rx="14" fill="#f7f8fa" stroke="#bfc6cf" stroke-width="2"/>
+<text x="955.0" y="472" text-anchor="middle" fill="#25303a" font-family="DejaVu Sans, sans-serif" font-size="21">Order index</text>
+<text x="955.0" y="503" text-anchor="middle" fill="#69727d" font-family="DejaVu Sans, sans-serif" font-size="16">fixed open addressing</text>
+<rect x="1090" y="420" width="250" height="125" rx="14" fill="#f7f8fa" stroke="#bfc6cf" stroke-width="2"/>
+<text x="1215.0" y="472" text-anchor="middle" fill="#25303a" font-family="DejaVu Sans, sans-serif" font-size="21">Trade sink</text>
+<text x="1215.0" y="503" text-anchor="middle" fill="#69727d" font-family="DejaVu Sans, sans-serif" font-size="16">deterministic sequence</text>
+<line x1="300" y1="217" x2="310" y2="217" stroke="#79a9ff" stroke-width="5" marker-end="url(#arrow)"/>
+<line x1="560" y1="217" x2="570" y2="217" stroke="#79a9ff" stroke-width="5" marker-end="url(#arrow)"/>
+<line x1="820" y1="217" x2="830" y2="217" stroke="#79a9ff" stroke-width="5" marker-end="url(#arrow)"/>
+<line x1="1080" y1="217" x2="1090" y2="217" stroke="#79a9ff" stroke-width="5" marker-end="url(#arrow)"/>
+<line x1="1215" y1="280" x2="1215" y2="420" stroke="#79a9ff" stroke-width="5" marker-end="url(#arrow)"/>
+<line x1="435" y1="345" x2="435" y2="420" stroke="#79a9ff" stroke-width="5" marker-end="url(#arrow)"/>
+<line x1="690" y1="345" x2="690" y2="420" stroke="#79a9ff" stroke-width="5" marker-end="url(#arrow)"/>
+<line x1="955" y1="345" x2="955" y2="420" stroke="#79a9ff" stroke-width="5" marker-end="url(#arrow)"/>
+<line x1="1080" y1="482" x2="1090" y2="482" stroke="#79a9ff" stroke-width="5" marker-end="url(#arrow)"/>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#79a9ff"/></marker></defs>
+<text x="50" y="690" fill="#717984" font-family="DejaVu Sans Mono, monospace" font-size="15">No background matcher thread is used in the reference implementation.</text>
+</svg>

@@ -1,0 +1,3 @@
+benchmark error: 1 GiB HUGETLB mapping failed; provision 1 GiB huge pages first
+
+strict_mode_exit_code=2

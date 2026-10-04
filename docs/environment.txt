@@ -1,0 +1,25 @@
+Reference run: GitHub Actions run 61 (2026-10-04)
+
+--- system ---
+Linux runnervm8df0l 6.17.0-1022-azure #22-Ubuntu SMP Mon Jul 27 17:24:03 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux
+
+--- compiler ---
+c++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
+Copyright (C) 2023 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions. There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+--- cmake ---
+CMake version was supplied by the Ubuntu runner image and is not separately recorded in this reference artifact.
+
+--- dataplane ---
+DPDK was not installed in the reference runner.
+
+--- hugepages ---
+1 GiB hugepage pool: 0
+2 MiB hugepage pool: 0
+Actual allocator backing in the reference run: 4096-byte normal pages.
+
+--- data layout ---
+OrderRequest: size=64 align=64
+RxDescriptor: size=16 align=8

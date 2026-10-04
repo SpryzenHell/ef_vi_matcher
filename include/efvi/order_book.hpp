@@ -417,6 +417,10 @@ private:
             if (e.state == 1 && e.key == key) return false;
             idx = (idx + 1) & kIndexMask;
         }
+        if (first_tombstone != MaxOrderIndex) {
+            index_[first_tombstone] = {key, slot, 1};
+            return true;
+        }
         return false;
     }
 
