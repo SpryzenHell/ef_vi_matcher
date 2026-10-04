@@ -6,7 +6,7 @@
 
 A C++17/Linux limit-order-book matcher built around a fixed memory model, a cache-line-isolated SPSC ring, and an optional DPDK ingress path.
 
-The project is intended to make the data path easy to inspect and benchmark rather than hide it behind a large framework. The normal build has no external C++ dependencies beyond the compiler, CMake, and POSIX/Linux facilities.
+The implementation is kept small enough that the complete data path can be read from the repository. The normal software build uses only a C++17 compiler, CMake, POSIX threads, and Linux memory facilities.
 
 ## Current status
 
@@ -56,7 +56,8 @@ docs/
   benchmark_300k_normal.txt
   allocator_200k.txt
   environment.txt
-  images/
+  reference_run/ci_61/   captured CI outputs used for the current figures
+  images/               generated README figures
 
 scripts/
   run.sh
@@ -64,6 +65,7 @@ scripts/
   hugepages_check.sh
   run_perf.sh
   bootstrap_ubuntu.sh
+  render_readme_assets.py
 
 Dockerfile
 CMakeLists.txt
@@ -137,6 +139,21 @@ cmake --build build --parallel
 ctest --test-dir build --output-on-failure
 ```
 
+
+## Build targets
+
+| Target | Purpose | Requires DPDK |
+|---|---|---:|
+| `efvi_matcher` | basic matcher smoke application | No |
+| `efvi_software_rx_demo` | software zero-copy buffer/descriptor demonstration | No |
+| `efvi_order_flow_demo` | FIFO and multi-order matching example | No |
+| `efvi_hugepage_probe` | page-size and data-layout probe | No |
+| `efvi_benchmark` | matcher and SPSC benchmark | No |
+| `efvi_allocator_benchmark` | fixed-pool benchmark | No |
+| `efvi_tests` | correctness and layout tests | No |
+| `efvi_dpdk_benchmark` | DPDK mempool/mbuf benchmark | Yes |
+| `efvi_dpdk_nic_rx_probe` | DPDK NIC capability probe | Yes |
+
 ## Run the examples
 
 ### Matcher example
@@ -169,7 +186,7 @@ same_buffer:             true
 
 That is the software demonstration of the ownership/data-path contract. There is no second heap allocation for the request.
 
-![Software RX loopback](docs/images/software_rx_demo.png)
+![Software RX loopback](docs/images/software_rx_demo.svg)
 
 ## Tests
 
@@ -205,63 +222,63 @@ ctest --test-dir build-asan --output-on-failure
 
 The repository's CI runs the same release and ASan/UBSan test stages.
 
-![Test run](docs/images/tests_run.png)
+![CI validation](docs/images/ci_tests.svg)
 
 ## Performance benchmark
 
-The reference benchmark measures two separate things:
-
-1. matcher throughput and sampled p50/p99 latency;
-2. SPSC producer/consumer exchange throughput.
+The reference benchmark measures matcher throughput, sampled p50/p99 latency, matching-loop allocations, actual page backing, and SPSC producer/consumer exchange rate.
 
 Run:
 
 ```bash
-./build/efvi_benchmark 300000 --normal
+./build/efvi_benchmark 50000 --normal
 ```
 
 The benchmark also writes `efvi_benchmark.csv` in the current working directory.
 
-The following numbers are from the local Linux run used for the repository documentation on 2026-10-04:
+The following values are from the captured GitHub Actions reference run used for the current README:
 
 | Metric | Measured value |
 |---|---:|
-| Matcher operations | 300,000 |
-| Matcher throughput | 20.66 M ops/s |
-| Matcher p50 | 0.157 us |
-| Matcher p99 | 1.648 us |
-| SPSC exchange | 78.93 M items/s |
+| Matcher operations | 50,000 |
+| Matcher throughput | 2.096 M ops/s |
+| Matcher p50 | 0.145 us |
+| Matcher p99 | 0.318 us |
+| Trades | 40,960 |
+| Live orders at end | 0 |
+| SPSC exchange | 58.679 M items/s |
 | Matching-loop global `new` calls | 0 |
-| Allocator stride | 64 bytes |
-| Benchmark pool mapping | 64 MiB |
+| Pool mapping | 64 MiB |
 | Actual page size | 4096 bytes |
 | HUGETLB backing | false |
 
 These measurements are a reference for the checked-in code, not a hardware-independent performance guarantee. CPU frequency, scheduling, compiler version, kernel configuration, cache state, and process placement all affect latency numbers.
 
-![Matcher latency](docs/images/benchmark_latency.png)
+![Matcher latency](docs/images/benchmark_latency.svg)
 
-![Measured throughput](docs/images/benchmark_throughput.png)
+![Measured throughput](docs/images/benchmark_throughput.svg)
 
-The raw command output is checked in as [`docs/benchmark_300k_normal.txt`](docs/benchmark_300k_normal.txt).
+The raw command output is checked in under [`docs/reference_run/ci_61/`](docs/reference_run/ci_61/). The benchmark CSV is [`benchmark.csv`](docs/reference_run/ci_61/benchmark.csv) and the console output is [`benchmark_console.txt`](docs/reference_run/ci_61/benchmark_console.txt).
 
 ## Allocator benchmark
 
 The allocator benchmark exercises the fixed pool directly:
 
 ```bash
-./build/efvi_allocator_benchmark 200000
+./build/efvi_allocator_benchmark 10000
 ```
 
-The local run used for the documentation produced:
+The captured reference run produced:
 
 ```text
-objects=200000 alloc_ops_per_sec=84416751.998 free_ops_per_sec=354869789.403 stride=64 mapped_bytes=12800000
+objects=10000 alloc_ops_per_sec=134645679.893 free_ops_per_sec=699398517.275 stride=64 mapped_bytes=643072
 ```
 
 Allocation and free operations are pointer manipulation on the pre-built intrusive free list. The mapping itself is created before the timed loop.
 
-![Allocator benchmark](docs/images/allocator_run.png)
+![Allocator benchmark](docs/images/allocator_run.svg)
+
+Raw output: [docs/reference_run/ci_61/allocator_benchmark.txt](docs/reference_run/ci_61/allocator_benchmark.txt).
 
 ## Huge pages
 
@@ -280,9 +297,9 @@ Inspect the host:
 ./build/efvi_hugepage_probe
 ```
 
-On the documentation host, the kernel reported zero reserved 1 GiB and 2 MiB hugetlb pages, so the allocator correctly used normal 4 KiB pages.
+On the reference CI host, the kernel reported zero reserved 1 GiB and 2 MiB HUGETLB pages, so automatic mode used normal 4 KiB pages.
 
-![Huge-page probe](docs/images/hugepage_probe.png)
+![Huge-page probe](docs/images/hugepage_probe.svg)
 
 Strict mode is useful when a benchmark must not silently fall back:
 
@@ -292,9 +309,11 @@ Strict mode is useful when a benchmark must not silently fall back:
 
 On a host without the required 1 GiB hugetlb page, the program exits with an explicit error rather than reporting a fake 1 GiB-page result.
 
-![Strict huge-page check](docs/images/hugepage_strict_failure.png)
+![Strict huge-page check](docs/images/hugepage_strict_failure.svg)
 
-The project does not claim a TLB-miss reduction until a matched normal-page/1-GiB-page experiment has been collected with processor-specific `perf` counters.
+Reference output: [docs/reference_run/ci_61/hugepage_strict.txt](docs/reference_run/ci_61/hugepage_strict.txt).
+
+The project does not publish a TLB-miss reduction percentage until a matched normal-page/1 GiB-page experiment has been collected with processor-specific `perf` counters.
 
 See [docs/hugepages.md](docs/hugepages.md) and [docs/performance.md](docs/performance.md) for the measurement procedure.
 
@@ -302,7 +321,7 @@ See [docs/hugepages.md](docs/hugepages.md) and [docs/performance.md](docs/perfor
 
 DPDK is optional. The default build is intentionally usable without it.
 
-On Ubuntu 24.04, the distribution provides the `libdpdk-dev` development package. See the [Ubuntu package index](https://packages.ubuntu.com/libdpdk-dev).
+On Ubuntu/Debian, install the distribution's DPDK development package. The exact package name may differ on other distributions.
 
 Install it with:
 
@@ -366,36 +385,36 @@ The alignment is an implementation choice for the target x86 cache-line assumpti
 
 The repository keeps the raw benchmark outputs used for the README:
 
-- [`docs/benchmark_300k_normal.txt`](docs/benchmark_300k_normal.txt)
-- [`docs/allocator_200k.txt`](docs/allocator_200k.txt)
-- [`docs/environment.txt`](docs/environment.txt)
+- [`docs/reference_run/ci_61/benchmark.csv`](docs/reference_run/ci_61/benchmark.csv)
+- [`docs/reference_run/ci_61/benchmark_console.txt`](docs/reference_run/ci_61/benchmark_console.txt)
+- [`docs/reference_run/ci_61/allocator_benchmark.txt`](docs/reference_run/ci_61/allocator_benchmark.txt)
+- [`docs/reference_run/ci_61/hugepage_probe.txt`](docs/reference_run/ci_61/hugepage_probe.txt)
+- [`docs/reference_run/ci_61/hugepage_strict.txt`](docs/reference_run/ci_61/hugepage_strict.txt)
+- [`docs/reference_run/ci_61/software_rx_loopback.txt`](docs/reference_run/ci_61/software_rx_loopback.txt)
 
-The screenshots under `docs/images/` are generated from those actual command outputs, not from placeholder values.
+The figures under `docs/images/` are generated from the captured reference files in `docs/reference_run/ci_61/`. There are no hand-entered benchmark values in the figure-generation step.
 
-![Application run](docs/images/application_run.png)
+![Application run](docs/images/application_run.svg)
 
-![Benchmark output](docs/images/benchmark_run.png)
+![Benchmark output](docs/images/benchmark_run.svg)
 
-![Local environment](docs/images/environment.png)
+![Local environment](docs/images/environment.svg)
 
-![Data layout](docs/images/data_layout.png)
+![Data layout](docs/images/data_layout.svg)
 
 ## Local reference environment
 
 ```text
-Linux 6.18.44 x86_64 GNU/Linux
-c++ (Debian 14.2.0-19) 14.2.0
-cmake version 3.31.6
+Ubuntu 24.04 GitHub Actions runner
+Linux 6.17.0-1022-azure x86_64
+GCC 13.3.0
 DPDK: not installed
-HugePages_Total: 0
-HugePages_Free: 0
-HugePages_Rsvd: 0
-Hugepagesize: 2048 kB
-Hugetlb: 0 kB
-Intel Xeon Platinum 8573C
+1 GiB hugepages: 0
+2 MiB hugepages: 0
+Actual pool backing in this run: 4096-byte normal pages
 ```
 
-Exact environment output is kept in [docs/environment.txt](docs/environment.txt).
+Exact environment output is kept in [docs/reference_run/ci_61/system.txt](docs/reference_run/ci_61/system.txt) and [docs/reference_run/ci_61/compiler.txt](docs/reference_run/ci_61/compiler.txt).
 
 ## Troubleshooting
 
