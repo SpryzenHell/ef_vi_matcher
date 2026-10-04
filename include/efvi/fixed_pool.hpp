@@ -1,32 +1,3 @@
-#pragma once
-#include <cstddef>
-#include <cstdlib>
-#include <new>
-#include <stdexcept>
-#include <utility>
-#include <sys/mman.h>
-#include <unistd.h>
-#ifndef MAP_HUGETLB
-#define MAP_HUGETLB 0x40000
-#endif
-#ifndef MAP_HUGE_SHIFT
-#define MAP_HUGE_SHIFT 26
-#endif
-#ifndef MAP_HUGE_2MB
-#define MAP_HUGE_2MB (21 << MAP_HUGE_SHIFT)
-#endif
-#ifndef MAP_HUGE_1GB
-#define MAP_HUGE_1GB (30 << MAP_HUGE_SHIFT)
-#endif
-namespace efvi {
-enum class PageMode { Normal, Huge2M, Huge1G, Auto };
-class MappedRegion final {
-public:
-    MappedRegion()=default;
-    MappedRegion(void* base,std::size_t length,bool mmaped,bool hugepage_backed,std::size_t page_size) noexcept
-      :base_(base),length_(length),mmaped_(mmaped),hugepage_backed_(hugepage_backed),page_size_(page_size){}
-    ~MappedRegion(){reset();}
-    MappedRegion(const MappedRegion&)=delete; MappedRegion& operator=(const MappedRegion&)=delete;
     MappedRegion(MappedRegion&& o) noexcept{move_from(std::move(o));}
     MappedRegion& operator=(MappedRegion&& o) noexcept{if(this!=&o){reset();move_from(std::move(o));}return *this;}
     [[nodiscard]] void* data() noexcept{return base_;} [[nodiscard]] const void* data() const noexcept{return base_;}
@@ -46,8 +17,8 @@ inline MappedRegion map_pages(std::size_t bytes,PageMode mode,bool strict){
         if(p==MAP_FAILED) return {};
         return {p,len,true,true,page_size};
     };
-    if(mode==PageMode::Huge1G||mode==PageMode::Auto){auto r=try_map(1ULL<<30,MAP_HUGETLB|MAP_HUGE_1GB);if(r.valid())return r;if(mode==PageMode::Huge1G&&strict)throw std::runtime_error("1 GiB HUGETLB mapping failed; provision 1 GiB huge pages first");}
-    if(mode==PageMode::Huge2M||mode==PageMode::Auto){auto r=try_map(2ULL<<20,MAP_HUGETLB|MAP_HUGE_2MB);if(r.valid())return r;if(mode==PageMode::Huge2M&&strict)throw std::runtime_error("2 MiB HUGETLB mapping failed; provision 2 MiB huge pages first");}
+    if(mode==PageMode::Huge1G || (mode==PageMode::Auto && bytes >= (1ULL<<30))){auto r=try_map(1ULL<<30,MAP_HUGETLB|MAP_HUGE_1GB);if(r.valid())return r;if(mode==PageMode::Huge1G&&strict)throw std::runtime_error("1 GiB HUGETLB mapping failed; provision 1 GiB huge pages first");}
+    if(mode==PageMode::Huge2M || (mode==PageMode::Auto && bytes >= (2ULL<<20))){auto r=try_map(2ULL<<20,MAP_HUGETLB|MAP_HUGE_2MB);if(r.valid())return r;if(mode==PageMode::Huge2M&&strict)throw std::runtime_error("2 MiB HUGETLB mapping failed; provision 2 MiB huge pages first");}
     if(mode==PageMode::Huge1G&&strict)throw std::runtime_error("strict 1 GiB huge-page mode requested but no mapping is available");
     if(mode==PageMode::Huge2M&&strict)throw std::runtime_error("strict 2 MiB huge-page mode requested but no mapping is available");
     const auto len=round_up(bytes,normal_page); void* p=nullptr; if(::posix_memalign(&p,64,len)!=0)throw std::bad_alloc(); return {p,len,false,false,normal_page};
@@ -77,7 +48,3 @@ private:
         if (capacity == 0) throw std::invalid_argument("FixedPool capacity must be positive");
         return map_pages(kStride * capacity, mode, strict);
     }
-
-    std::size_t capacity_{0};std::size_t stride_{0};MappedRegion region_;FreeNode*free_head_{nullptr};std::size_t used_{0};
-};
-} // namespace efvi
