@@ -39,6 +39,7 @@ private:
 };
 inline std::size_t round_up(std::size_t n,std::size_t a){return ((n+a-1)/a)*a;}
 inline MappedRegion map_pages(std::size_t bytes,PageMode mode,bool strict){
+    if (bytes == 0) throw std::invalid_argument("cannot map a zero-byte region");
     const auto normal_page=static_cast<std::size_t>(::sysconf(_SC_PAGESIZE));
     const auto try_map=[&](std::size_t page_size,int flags)->MappedRegion{
         const auto len=round_up(bytes,page_size); void* p=::mmap(nullptr,len,PROT_READ|PROT_WRITE,MAP_PRIVATE|MAP_ANONYMOUS|flags,-1,0);
@@ -55,7 +56,8 @@ template<typename T> class FixedPool final {
     struct FreeNode{FreeNode*next;};
     static constexpr std::size_t kStride=((sizeof(T)>sizeof(FreeNode)?sizeof(T):sizeof(FreeNode))+alignof(T)-1)/alignof(T)*alignof(T);
 public:
-    explicit FixedPool(std::size_t capacity,PageMode mode=PageMode::Auto,bool strict=false):capacity_(capacity),stride_(kStride),region_(map_pages(kStride*capacity,mode,strict)){
+    explicit FixedPool(std::size_t capacity,PageMode mode=PageMode::Auto,bool strict=false)
+        : capacity_(capacity), stride_(kStride), region_(make_region(capacity, mode, strict)) {
         if(capacity_==0)throw std::invalid_argument("FixedPool capacity must be positive");
         auto* bytes=static_cast<std::byte*>(region_.data());
         for(std::size_t i=0;i<capacity_;++i){auto* node=reinterpret_cast<FreeNode*>(bytes+i*stride_);node->next=(i+1<capacity_)?reinterpret_cast<FreeNode*>(bytes+(i+1)*stride_):nullptr;}
@@ -71,6 +73,11 @@ public:
     [[nodiscard]] bool hugepage_backed()const noexcept{return region_.hugepage_backed();} [[nodiscard]] std::size_t page_size()const noexcept{return region_.page_size();}
     [[nodiscard]] static constexpr std::size_t stride()noexcept{return kStride;}
 private:
+    static MappedRegion make_region(std::size_t capacity, PageMode mode, bool strict) {
+        if (capacity == 0) throw std::invalid_argument("FixedPool capacity must be positive");
+        return map_pages(kStride * capacity, mode, strict);
+    }
+
     std::size_t capacity_{0};std::size_t stride_{0};MappedRegion region_;FreeNode*free_head_{nullptr};std::size_t used_{0};
 };
 } // namespace efvi
