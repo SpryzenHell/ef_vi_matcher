@@ -11,6 +11,6 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 COPY . /src
-RUN ./scripts/run.sh
+RUN bash ./scripts/run.sh
 
 CMD ["./build/efvi_matcher"]
