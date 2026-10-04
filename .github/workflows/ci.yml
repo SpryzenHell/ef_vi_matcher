@@ -29,16 +29,26 @@ jobs:
           mkdir -p ci-artifacts
 
           ./build/efvi_matcher | tee ci-artifacts/matcher_smoke.txt
+          ./build/efvi_software_rx_demo | tee ci-artifacts/software_rx_loopback.txt
           ./build/efvi_order_flow_demo | tee ci-artifacts/order_flow_demo.txt
           ./build/efvi_hugepage_probe | tee ci-artifacts/hugepage_probe.txt
           ./build/efvi_allocator_benchmark 10000 | tee ci-artifacts/allocator_benchmark.txt
+
+          set +e
+          ./build/efvi_benchmark 10000 --huge1g --strict > ci-artifacts/hugepage_strict.txt 2>&1
+          STRICT_RC=$?
+          set -e
+          if [[ $STRICT_RC -eq 0 ]]; then
+            echo "strict 1 GiB hugepage test unexpectedly succeeded on the CI host" >&2
+            exit 1
+          fi
+          printf '\nstrict_mode_exit_code=%s\n' "$STRICT_RC" >> ci-artifacts/hugepage_strict.txt
 
           (
             cd ci-artifacts
             ../build/efvi_benchmark 50000 --normal | tee benchmark_console.txt
           )
           mv ci-artifacts/efvi_benchmark.csv ci-artifacts/benchmark.csv
-
           printf '%s\n' '${{ github.sha }}' > ci-artifacts/commit.txt
           uname -a > ci-artifacts/system.txt
           c++ --version > ci-artifacts/compiler.txt
