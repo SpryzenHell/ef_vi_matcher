@@ -5,7 +5,7 @@ on:
   pull_request:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build-test:
@@ -61,6 +61,13 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+      - name: Generate README figures from reference run
+        run: python3 scripts/render_readme_assets.py docs/reference_run/ci_61 docs/images
+
+      - name: Verify README figures are reproducible
+        run: |
+          git diff --exit-code -- docs/images
+
       - name: Configure ASan/UBSan
         run: cmake -S . -B build-asan -DCMAKE_BUILD_TYPE=Debug -DEFVI_ENABLE_DPDK=OFF -DEFVI_ENABLE_SANITIZERS=ON
 
@@ -69,3 +76,15 @@ jobs:
 
       - name: Test ASan/UBSan
         run: ctest --test-dir build-asan --output-on-failure
+
+      - name: Commit README figures
+        if: github.event_name == 'push'
+        shell: bash
+        run: |
+          if [[ -n "$(git status --porcelain -- docs/images)" ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add docs/images
+            git commit -m "docs: refresh README figures [skip ci]"
+            git push
+          fi
