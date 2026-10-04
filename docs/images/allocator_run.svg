@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="300" viewBox="0 0 1200 300">
+<rect width="100%" height="100%" fill="#17191d"/>
+<rect x="24" y="24" width="1152" height="252" rx="12" fill="#20242a" stroke="#4e5662" stroke-width="2"/>
+<circle cx="52" cy="50" r="6" fill="#d36d6d"/>
+<circle cx="74" cy="50" r="6" fill="#d9bd67"/>
+<circle cx="96" cy="50" r="6" fill="#83bc8c"/>
+<text x="125" y="57" fill="#edf0f4" font-family="DejaVu Sans, sans-serif" font-size="22">efvi_allocator_benchmark 10000</text>
+<text x="52" y="115" fill="#edf0f4" font-family="DejaVu Sans Mono, monospace" font-size="19">objects=10000 alloc_ops_per_sec=134645679.893 free_ops_per_sec=699398517.275 stride=64 mapped_bytes=643072</text>
+<text x="52" y="252" fill="#a8afb9" font-family="DejaVu Sans Mono, monospace" font-size="14">Source: allocator_benchmark.txt</text>
+</svg>

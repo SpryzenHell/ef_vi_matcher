@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="650" viewBox="0 0 1400 650">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="50" y="60" fill="#23282f" font-family="DejaVu Sans, sans-serif" font-size="32">Data layout used by the matcher</text>
+<text x="50" y="92" fill="#707883" font-family="DejaVu Sans, sans-serif" font-size="17">Sizes and alignment are checked with static assertions where appropriate.</text>
+<text x="60" y="161" fill="#2c333b" font-family="DejaVu Sans, sans-serif" font-size="20">OrderRequest</text>
+<rect x="325" y="135" width="540" height="40" rx="5" fill="#edf2f8" stroke="#aab7c7" stroke-width="2"/>
+<text x="595" y="162" text-anchor="middle" fill="#33404e" font-family="DejaVu Sans Mono, monospace" font-size="18">64 B</text>
+<text x="920" y="161" fill="#6d7580" font-family="DejaVu Sans, sans-serif" font-size="18">alignas(64)</text>
+<text x="60" y="253" fill="#2c333b" font-family="DejaVu Sans, sans-serif" font-size="20">OrderNode</text>
+<rect x="325" y="227" width="540" height="40" rx="5" fill="#edf2f8" stroke="#aab7c7" stroke-width="2"/>
+<text x="595" y="254" text-anchor="middle" fill="#33404e" font-family="DejaVu Sans Mono, monospace" font-size="18">64 B</text>
+<text x="920" y="253" fill="#6d7580" font-family="DejaVu Sans, sans-serif" font-size="18">one cache line</text>
+<text x="60" y="345" fill="#2c333b" font-family="DejaVu Sans, sans-serif" font-size="20">Level</text>
+<rect x="325" y="319" width="540" height="40" rx="5" fill="#edf2f8" stroke="#aab7c7" stroke-width="2"/>
+<text x="595" y="346" text-anchor="middle" fill="#33404e" font-family="DejaVu Sans Mono, monospace" font-size="18">64 B</text>
+<text x="920" y="345" fill="#6d7580" font-family="DejaVu Sans, sans-serif" font-size="18">one cache line</text>
+<text x="60" y="437" fill="#2c333b" font-family="DejaVu Sans, sans-serif" font-size="20">SPSC Slot</text>
+<rect x="325" y="411" width="540" height="40" rx="5" fill="#edf2f8" stroke="#aab7c7" stroke-width="2"/>
+<text x="595" y="438" text-anchor="middle" fill="#33404e" font-family="DejaVu Sans Mono, monospace" font-size="18">64 B</text>
+<text x="920" y="437" fill="#6d7580" font-family="DejaVu Sans, sans-serif" font-size="18">aligned slot</text>
+<text x="60" y="529" fill="#2c333b" font-family="DejaVu Sans, sans-serif" font-size="20">RxDescriptor</text>
+<rect x="325" y="503" width="540" height="40" rx="5" fill="#edf2f8" stroke="#aab7c7" stroke-width="2"/>
+<text x="595" y="530" text-anchor="middle" fill="#33404e" font-family="DejaVu Sans Mono, monospace" font-size="18">16 B</text>
+<text x="920" y="529" fill="#6d7580" font-family="DejaVu Sans, sans-serif" font-size="18">16-byte payload</text>
+<text x="50" y="620" fill="#7b828c" font-family="DejaVu Sans Mono, monospace" font-size="14">Source: include/efvi/types.hpp and include/efvi/order_book.hpp</text>
+</svg>
