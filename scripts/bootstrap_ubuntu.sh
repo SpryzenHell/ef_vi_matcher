@@ -6,24 +6,24 @@ if ! command -v apt-get >/dev/null 2>&1; then
     exit 2
 fi
 
-if [[ "\${EUID}" -eq 0 ]]; then
+if [[ "${EUID}" -eq 0 ]]; then
     APT=(apt-get)
 else
     APT=(sudo apt-get)
 fi
 
-"\${APT[@]}" update
-"\${APT[@]}" install -y build-essential cmake pkg-config
+"${APT[@]}" update
+"${APT[@]}" install -y build-essential cmake pkg-config
 
-if [[ "\${WITH_DPDK:-0}" == "1" ]]; then
-    "\${APT[@]}" install -y libdpdk-dev
+if [[ "${WITH_DPDK:-0}" == "1" ]]; then
+    "${APT[@]}" install -y libdpdk-dev
 fi
 
 echo
 echo "Base toolchain installed."
 echo "Run: ./scripts/run.sh"
 
-if [[ "\${WITH_DPDK:-0}" == "1" ]]; then
+if [[ "${WITH_DPDK:-0}" == "1" ]]; then
     echo
     echo "DPDK development files installed."
     echo "Configure the DPDK build with:"
