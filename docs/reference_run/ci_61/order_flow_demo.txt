@@ -1,1 +1,0 @@
-filled=125 trades=2 best_ask=10010 best_ask_qty=25

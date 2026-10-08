@@ -1,7 +1,0 @@
-software RX loopback
-  original_order_address: 0x7ffde7a17e80
-  matcher_order_address:  0x7ffde7a17e80
-  same_buffer:             true
-  rested:                  true
-  live_orders:             1
-  rx_pending:              0

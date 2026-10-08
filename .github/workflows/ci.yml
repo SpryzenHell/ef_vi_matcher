@@ -4,6 +4,10 @@ on:
   push:
   pull_request:
 
+concurrency:
+  group: efvi-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
@@ -139,5 +143,7 @@ jobs:
           git add docs/reference_run/current docs/images
           if [[ -n "$(git status --porcelain -- docs/reference_run/current docs/images)" ]]; then
             git commit -m "docs: refresh measurements and figures [skip ci]"
+            git fetch origin main
+            git rebase origin/main
             git push
           fi

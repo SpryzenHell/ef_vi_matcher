@@ -1,2 +1,0 @@
-operations=300000 elapsed_s=0.015 ops_per_sec=20662057.788 p50_us=0.157 p99_us=1.648 trades=40960 live_orders=0 mapped_bytes=67108864 page_size=4096 hugepages=false hotpath_allocations=0
-spsc_items=1048576 spsc_items_per_sec=78928332.548 ring_alignment=64 slot_alignment=64

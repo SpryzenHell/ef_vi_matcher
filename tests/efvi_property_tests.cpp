@@ -3,8 +3,8 @@
 #include <algorithm>
 #include <array>
 #include <cstddef>
-#include <functional>
 #include <cstdint>
+#include <functional>
 #include <iostream>
 #include <limits>
 #include <map>
@@ -270,8 +270,6 @@ Request make_random_request(Rng& rng, std::uint64_t id) {
 
     if (r.tif != efvi::TimeInForce::GoodTilCancel && rng.uniform(10) == 0) {
         r.price = efvi::kMarketPrice;
-        if (r.tif == efvi::TimeInForce::GoodTilCancel)
-            r.tif = efvi::TimeInForce::ImmediateOrCancel;
     } else {
         r.price = 1000 + static_cast<Price>(rng.uniform(16));
     }
