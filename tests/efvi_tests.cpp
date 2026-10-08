@@ -288,7 +288,10 @@ static void test_order_book_validation_and_capacity() {
     }
     assert(bad_ladder);
 
-    Book b({});
+    Book::Config validation_cfg{};
+    validation_cfg.base_price = 1000;
+    validation_cfg.order_pool_pages = efvi::PageMode::Normal;
+    Book b(validation_cfg);
     Sink s;
 
     bool zero_id = false;
