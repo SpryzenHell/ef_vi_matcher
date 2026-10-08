@@ -79,7 +79,7 @@ Install the basic tools on Ubuntu:
 
 Build:
 
-    cmake -S . -B build       -DCMAKE_BUILD_TYPE=Release       -DEFVI_ENABLE_DPDK=OFF       -DEFVI_BUILD_TESTS=ON       -DEFVI_BUILD_BENCHMARKS=ON       -DEFVI_BUILD_EXAMPLES=ON
+    cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DEFVI_ENABLE_DPDK=OFF -DEFVI_BUILD_TESTS=ON -DEFVI_BUILD_BENCHMARKS=ON -DEFVI_BUILD_EXAMPLES=ON
 
     cmake --build build --parallel
     ctest --test-dir build --output-on-failure
@@ -134,7 +134,7 @@ The randomized test compares the matcher against a small reference model after e
 
 ## Sanitizer build
 
-    cmake -S . -B build-asan       -DCMAKE_BUILD_TYPE=Debug       -DEFVI_ENABLE_DPDK=OFF       -DEFVI_ENABLE_SANITIZERS=ON
+    cmake -S . -B build-asan -DCMAKE_BUILD_TYPE=Debug -DEFVI_ENABLE_DPDK=OFF -DEFVI_ENABLE_SANITIZERS=ON
 
     cmake --build build-asan --parallel
     ctest --test-dir build-asan --output-on-failure
@@ -225,7 +225,7 @@ Install the development package:
 
 Configure:
 
-    cmake -S . -B build-dpdk       -DCMAKE_BUILD_TYPE=Release       -DEFVI_ENABLE_DPDK=ON
+    cmake -S . -B build-dpdk -DCMAKE_BUILD_TYPE=Release -DEFVI_ENABLE_DPDK=ON
 
     cmake --build build-dpdk --parallel
 
