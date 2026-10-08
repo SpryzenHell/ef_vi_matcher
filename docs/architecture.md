@@ -1,29 +1,47 @@
 # Architecture
 
-## Runtime path
+## Data path
 
-Optional DPDK/NIC ingress
-  -> fixed RX buffer / rte_mbuf
-  -> 64-byte descriptor
-  -> cache-line-isolated SPSC ring
-  -> in-place OrderRequest
-  -> deterministic price ladder + FIFO
-  -> fixed OrderNode pool
-  -> open-addressed order-ID index
-  -> TradeSink
+NIC or DPDK input
+-> RX buffer
+-> cache-line-isolated SPSC ring
+-> in-place OrderRequest
+-> fixed order pool
+-> price ladder and FIFO matching
+-> fixed order-ID index
+-> trade sink
 
-## Data structures
+The normal software loopback uses the same request address through the descriptor ring. The optional DPDK layer keeps the mbuf owner with the in-place request pointer.
 
-OrderRequest is exactly 64 bytes and trivially copyable.
+## Main data structures
 
-OrderNode is exactly one 64-byte cache line and stores order identity, sequence, remaining quantity, price-level index and intrusive FIFO links.
+| Data | Size / property |
+|---|---|
+| OrderRequest | 64 bytes, 64-byte aligned |
+| OrderNode | 64 bytes |
+| Price Level | 64 bytes |
+| SPSC slot | 64-byte aligned |
+| RX descriptor | 16 bytes |
+| Order-ID index | fixed open-addressed table |
+| Order pool | fixed-capacity intrusive free list |
 
-Level is exactly one 64-byte cache line and stores aggregate quantity plus FIFO head/tail.
+## Matching rules
 
-The order-ID index is a fixed-capacity open-addressing table allocated once at construction.
+Orders are matched by price first and arrival sequence second.
 
-## Matching semantics
+Supported order types:
+- limit;
+- market IOC/FOK;
+- IOC;
+- FOK.
 
-The matcher supports limit, market IOC/FOK, IOC and FOK requests; partial and multi-level fills; cancel; and cancel/replace. A quantity-only reduction at unchanged price preserves queue priority. Price changes and size increases are implemented as cancel/replace and receive a new sequence number.
+Supported book operations:
+- add;
+- cancel;
+- cancel/replace;
+- partial fills;
+- multi-level fills.
 
-There is no background matcher thread. Order sequence and trade sequence are explicit monotonic counters, so identical input streams produce identical trade streams.
+A size reduction at the same price keeps its queue position. A price change or size increase removes the old order and inserts a new one with a new sequence number.
+
+There is no background matching thread in the reference implementation.

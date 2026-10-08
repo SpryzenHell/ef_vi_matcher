@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdlib>
 #include <limits>
@@ -69,34 +70,15 @@ public:
         return *this;
     }
 
-    [[nodiscard]] void* data() noexcept {
-        return base_;
-    }
-
-    [[nodiscard]] const void* data() const noexcept {
-        return base_;
-    }
-
-    [[nodiscard]] std::size_t size() const noexcept {
-        return length_;
-    }
-
-    [[nodiscard]] bool valid() const noexcept {
-        return base_ != nullptr;
-    }
-
-    [[nodiscard]] bool hugepage_backed() const noexcept {
-        return hugepage_backed_;
-    }
-
-    [[nodiscard]] std::size_t page_size() const noexcept {
-        return page_size_;
-    }
+    [[nodiscard]] void* data() noexcept { return base_; }
+    [[nodiscard]] const void* data() const noexcept { return base_; }
+    [[nodiscard]] std::size_t size() const noexcept { return length_; }
+    [[nodiscard]] bool valid() const noexcept { return base_ != nullptr; }
+    [[nodiscard]] bool hugepage_backed() const noexcept { return hugepage_backed_; }
+    [[nodiscard]] std::size_t page_size() const noexcept { return page_size_; }
 
     void reset() noexcept {
-        if (base_ == nullptr) {
-            return;
-        }
+        if (base_ == nullptr) return;
 
         if (mmaped_) {
             (void)::munmap(base_, length_);
@@ -145,13 +127,20 @@ private:
 
 [[nodiscard]] inline MappedRegion map_pages(std::size_t bytes,
                                             PageMode mode,
-                                            bool strict) {
+                                            bool strict,
+                                            std::size_t alignment = 64) {
     if (bytes == 0) {
         throw std::invalid_argument("cannot map a zero-byte region");
     }
+    if (alignment < sizeof(void*)) {
+        alignment = sizeof(void*);
+    }
 
-    const auto normal_page =
-        static_cast<std::size_t>(::sysconf(_SC_PAGESIZE));
+    const long page_size_raw = ::sysconf(_SC_PAGESIZE);
+    if (page_size_raw <= 0) {
+        throw std::runtime_error("cannot determine Linux base page size");
+    }
+    const auto normal_page = static_cast<std::size_t>(page_size_raw);
 
     const auto try_map =
         [&](std::size_t page_size, int flags) -> MappedRegion {
@@ -180,12 +169,8 @@ private:
         (mode == PageMode::Auto && bytes >= (2ULL << 20));
 
     if (needs_1g) {
-        auto region =
-            try_map(1ULL << 30, MAP_HUGETLB | MAP_HUGE_1GB);
-
-        if (region.valid()) {
-            return region;
-        }
+        auto region = try_map(1ULL << 30, MAP_HUGETLB | MAP_HUGE_1GB);
+        if (region.valid()) return region;
 
         if (mode == PageMode::Huge1G && strict) {
             throw std::runtime_error(
@@ -194,12 +179,8 @@ private:
     }
 
     if (needs_2m) {
-        auto region =
-            try_map(2ULL << 20, MAP_HUGETLB | MAP_HUGE_2MB);
-
-        if (region.valid()) {
-            return region;
-        }
+        auto region = try_map(2ULL << 20, MAP_HUGETLB | MAP_HUGE_2MB);
+        if (region.valid()) return region;
 
         if (mode == PageMode::Huge2M && strict) {
             throw std::runtime_error(
@@ -207,20 +188,14 @@ private:
         }
     }
 
-    if (mode == PageMode::Huge1G && strict) {
-        throw std::runtime_error(
-            "strict 1 GiB huge-page mode requested but no mapping is available");
-    }
-
-    if (mode == PageMode::Huge2M && strict) {
-        throw std::runtime_error(
-            "strict 2 MiB huge-page mode requested but no mapping is available");
+    if ((mode == PageMode::Huge1G || mode == PageMode::Huge2M) && strict) {
+        throw std::runtime_error("requested strict huge-page mapping is unavailable");
     }
 
     const auto length = round_up(bytes, normal_page);
 
     void* ptr = nullptr;
-    if (::posix_memalign(&ptr, 64, length) != 0) {
+    if (::posix_memalign(&ptr, alignment, length) != 0) {
         throw std::bad_alloc();
     }
 
@@ -232,6 +207,9 @@ class FixedPool final {
     struct FreeNode {
         FreeNode* next;
     };
+
+    static constexpr std::size_t kAlignment =
+        (alignof(T) > alignof(std::max_align_t)) ? alignof(T) : alignof(std::max_align_t);
 
     static constexpr std::size_t kStride =
         ((sizeof(T) > sizeof(FreeNode) ? sizeof(T) : sizeof(FreeNode)) +
@@ -250,16 +228,11 @@ public:
         }
 
         auto* bytes = static_cast<std::byte*>(region_.data());
-
         for (std::size_t i = 0; i < capacity_; ++i) {
-            auto* node =
-                reinterpret_cast<FreeNode*>(bytes + i * stride_);
-
-            node->next =
-                (i + 1 < capacity_)
-                    ? reinterpret_cast<FreeNode*>(
-                          bytes + (i + 1) * stride_)
-                    : nullptr;
+            auto* node = reinterpret_cast<FreeNode*>(bytes + i * stride_);
+            node->next = (i + 1 < capacity_)
+                ? reinterpret_cast<FreeNode*>(bytes + (i + 1) * stride_)
+                : nullptr;
         }
 
         free_head_ = reinterpret_cast<FreeNode*>(bytes);
@@ -271,10 +244,7 @@ public:
     template <typename... Args>
     [[nodiscard]] T* create(Args&&... args) {
         void* memory = allocate();
-
-        if (memory == nullptr) {
-            return nullptr;
-        }
+        if (memory == nullptr) return nullptr;
 
         try {
             return ::new (memory) T(std::forward<Args>(args)...);
@@ -285,18 +255,13 @@ public:
     }
 
     void destroy(T* object) noexcept {
-        if (object == nullptr) {
-            return;
-        }
-
+        if (object == nullptr) return;
         object->~T();
         deallocate(object);
     }
 
     [[nodiscard]] void* allocate() noexcept {
-        if (free_head_ == nullptr) {
-            return nullptr;
-        }
+        if (free_head_ == nullptr) return nullptr;
 
         auto* out = free_head_;
         free_head_ = free_head_->next;
@@ -305,50 +270,22 @@ public:
     }
 
     void deallocate(void* memory) noexcept {
-        if (memory == nullptr) {
-            return;
-        }
+        if (memory == nullptr) return;
 
         auto* node = static_cast<FreeNode*>(memory);
         node->next = free_head_;
         free_head_ = node;
-
-        if (used_ > 0) {
-            --used_;
-        }
+        if (used_ > 0) --used_;
     }
 
-    [[nodiscard]] std::size_t capacity() const noexcept {
-        return capacity_;
-    }
-
-    [[nodiscard]] std::size_t used() const noexcept {
-        return used_;
-    }
-
-    [[nodiscard]] std::size_t free_count() const noexcept {
-        return capacity_ - used_;
-    }
-
-    [[nodiscard]] const void* base() const noexcept {
-        return region_.data();
-    }
-
-    [[nodiscard]] std::size_t mapped_bytes() const noexcept {
-        return region_.size();
-    }
-
-    [[nodiscard]] bool hugepage_backed() const noexcept {
-        return region_.hugepage_backed();
-    }
-
-    [[nodiscard]] std::size_t page_size() const noexcept {
-        return region_.page_size();
-    }
-
-    [[nodiscard]] static constexpr std::size_t stride() noexcept {
-        return kStride;
-    }
+    [[nodiscard]] std::size_t capacity() const noexcept { return capacity_; }
+    [[nodiscard]] std::size_t used() const noexcept { return used_; }
+    [[nodiscard]] std::size_t free_count() const noexcept { return capacity_ - used_; }
+    [[nodiscard]] const void* base() const noexcept { return region_.data(); }
+    [[nodiscard]] std::size_t mapped_bytes() const noexcept { return region_.size(); }
+    [[nodiscard]] bool hugepage_backed() const noexcept { return region_.hugepage_backed(); }
+    [[nodiscard]] std::size_t page_size() const noexcept { return region_.page_size(); }
+    [[nodiscard]] static constexpr std::size_t stride() noexcept { return kStride; }
 
 private:
     static MappedRegion make_region(std::size_t capacity,
@@ -358,13 +295,11 @@ private:
             throw std::invalid_argument("FixedPool capacity must be positive");
         }
 
-        if (kStride >
-            std::numeric_limits<std::size_t>::max() / capacity) {
-            throw std::overflow_error(
-                "FixedPool size exceeds addressable memory");
+        if (kStride > std::numeric_limits<std::size_t>::max() / capacity) {
+            throw std::overflow_error("FixedPool size exceeds addressable memory");
         }
 
-        return map_pages(kStride * capacity, mode, strict);
+        return map_pages(kStride * capacity, mode, strict, kAlignment);
     }
 
     std::size_t capacity_{0};

@@ -1,31 +1,17 @@
-# Performance
+# Performance and experiments
 
-This file replaces the old benchmark table with measurements produced by the maintained EF_VI build.
+The repository separates correctness tests from machine-dependent measurements.
 
-## Method
+The regular benchmark measures:
+- matcher throughput;
+- p50 and p99 operation latency;
+- trade count and live orders;
+- fixed-pool mapping size and page mode;
+- global C++ new calls during the measured matching loop;
+- SPSC producer/consumer throughput.
 
-- Fixed-capacity matcher state is constructed before measurement.
-- Latency is sampled with `std::chrono::steady_clock`.
-- The benchmark has a global C++ `new` counter around the measured matching loop.
-- SPSC throughput is measured independently from matcher latency.
-- Huge-page mode is reported from the actual mapping.
-- TLB claims require target-CPU performance counters.
+The experiment runner repeats the matcher and allocator benchmarks at several sizes, compares normal/auto/2 MiB/1 GiB page modes, and measures three SPSC ring sizes. It writes the raw CSV data under docs/reference_run/current/.
 
-## Local reference observation
+The numbers in the repository are measurements from the recorded Linux CI run. They are not hardware-independent guarantees. CPU frequency, scheduling, cache state, kernel configuration, compiler version and process placement can change the results.
 
-| Metric | Local observation |
-|---|---:|
-| Matcher operations | 300,000 |
-| Matcher throughput | ~18M ops/s |
-| p50 | ~0.16 us |
-| p99 | ~1.87 us |
-| Matching-loop `new` calls | 0 |
-| SPSC exchange | ~20M items/s |
-| Huge pages available | No |
-| DPDK available | No |
-
-These values depend on CPU, kernel, build flags, scheduling and workload. They should be regenerated on the deployment host before being used in a resume or technical report.
-
-## Original upstream numbers
-
-Numbers shown in the historical upstream README/performance files are kept as provenance, but they are not relabeled as measurements of this revamp.
+A real TLB comparison requires the same workload on the target machine with normal pages and strict 1 GiB HUGETLB pages while recording processor-specific perf counters. The repository does not invent a TLB reduction number when that experiment has not been run.

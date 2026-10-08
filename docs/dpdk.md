@@ -1,16 +1,14 @@
 # DPDK integration
 
-The DPDK layer is optional so the deterministic matcher can still be built and tested on ordinary Linux machines.
+DPDK is optional.
 
-DpdkPacketView keeps the rte_mbuf owner and the OrderRequest payload pointer together. The payload pointer refers directly to the mbuf data area.
+The default build does not require DPDK. When DPDK development files are found through pkg-config, the build adds the DPDK library, benchmark and NIC capability probe.
 
-The software loopback path writes the request once into the mbuf data area and then pushes only the descriptor pointer and sequence through the SPSC ring. A real RX path should parse the buffer returned by rte_eth_rx_burst.
+Configure:
 
-CMake detects DPDK through pkg-config. When libdpdk is unavailable, the core matcher and normal benchmarks remain buildable.
+    cmake -S . -B build-dpdk -DCMAKE_BUILD_TYPE=Release -DEFVI_ENABLE_DPDK=ON
+    cmake --build build-dpdk --parallel
 
-With DPDK installed:
+The DPDK adapter keeps the rte_mbuf owner together with the in-place OrderRequest pointer.
 
-cmake -S . -B build-dpdk -DCMAKE_BUILD_TYPE=Release -DEFVI_ENABLE_DPDK=ON
-cmake --build build-dpdk --parallel
-
-The dpdk_nic_rx executable is a capability probe. NIC port/queue configuration remains host-specific.
+A real NIC run still depends on the host: device binding, driver, queue setup, NUMA placement, huge pages and port configuration are machine-specific.
