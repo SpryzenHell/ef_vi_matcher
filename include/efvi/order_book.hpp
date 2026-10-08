@@ -78,21 +78,33 @@ public:
 
     template <typename TradeSink>
     MatchStats add(const OrderRequest& req, TradeSink&& sink) {
+        return add_impl(req, req.quantity, std::forward<TradeSink>(sink));
+    }
+
+    template <typename TradeSink>
+    MatchStats add_impl(const OrderRequest& req,
+                        Quantity initial_remaining,
+                        TradeSink&& sink) {
         validate_request(req);
+
+        if (initial_remaining == 0 || initial_remaining > req.quantity) {
+            throw std::invalid_argument("invalid initial remaining quantity");
+        }
 
         if (req.tif == TimeInForce::FillOrKill ||
             req.tif == TimeInForce::ImmediateOrCancel) {
-            const auto needed = req.quantity;
-            const auto available = available_crossing(req.side, req.price, needed);
+            const auto available =
+                available_crossing(req.side, req.price, initial_remaining);
 
-            if (req.tif == TimeInForce::FillOrKill && available < needed)
+            if (req.tif == TimeInForce::FillOrKill &&
+                available < initial_remaining)
                 return MatchStats{0, 0, false, false, true};
 
             if (req.tif == TimeInForce::ImmediateOrCancel && available == 0)
                 return MatchStats{0, 0, false, false, true};
         }
 
-        OrderNode* node = allocate_order(req);
+        OrderNode* node = allocate_order(req, initial_remaining);
         if (!node) return MatchStats{0, 0, false, false, true};
 
         MatchStats out{};
@@ -212,6 +224,11 @@ public:
             return MatchStats{0, 0, false, true, false};
         }
 
+        if (new_total_quantity == executed) {
+            cancel(id);
+            return MatchStats{0, 0, false, false, true};
+        }
+
         cancel(id);
 
         OrderRequest req{};
@@ -221,7 +238,10 @@ public:
         req.price = new_price;
         req.side = old.side;
         req.tif = old.tif;
-        return add(req, std::forward<TradeSink>(sink));
+        return add_impl(
+            req,
+            static_cast<Quantity>(new_total_quantity - executed),
+            std::forward<TradeSink>(sink));
     }
 
     [[nodiscard]] Price best_bid() const noexcept {
@@ -337,7 +357,8 @@ private:
         return idx < MaxLevels ? static_cast<int>(idx) : -1;
     }
 
-    OrderNode* allocate_order(const OrderRequest& req) {
+    OrderNode* allocate_order(const OrderRequest& req,
+                              Quantity initial_remaining) {
         auto* node = order_pool_.create();
         if (!node) return nullptr;
 
@@ -346,7 +367,7 @@ private:
         node->id = req.order_id;
         node->sequence = ++last_sequence_;
         node->quantity = req.quantity;
-        node->remaining = req.quantity;
+        node->remaining = initial_remaining;
         node->price = req.price;
         node->instrument = req.instrument;
         node->side = req.side;
