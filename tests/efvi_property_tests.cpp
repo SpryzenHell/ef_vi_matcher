@@ -113,14 +113,19 @@ struct Model {
         return best;
     }
 
-    ModelStats add(const Request& req) {
+    ModelStats add(const Request& req, Quantity initial_remaining) {
         ModelStats out{};
+
+        if (initial_remaining == 0 || initial_remaining > req.quantity) {
+            throw std::invalid_argument("invalid model remaining quantity");
+        }
 
         if (req.tif == efvi::TimeInForce::FillOrKill ||
             req.tif == efvi::TimeInForce::ImmediateOrCancel) {
-            const auto available_qty = available(req.side, req.price, req.quantity);
+            const auto available_qty =
+                available(req.side, req.price, initial_remaining);
             if ((req.tif == efvi::TimeInForce::FillOrKill &&
-                 available_qty < req.quantity) ||
+                 available_qty < initial_remaining) ||
                 (req.tif == efvi::TimeInForce::ImmediateOrCancel &&
                  available_qty == 0)) {
                 out.cancelled = true;
@@ -132,7 +137,7 @@ struct Model {
         in.id = req.order_id;
         in.sequence = ++next_sequence;
         in.quantity = req.quantity;
-        in.remaining = req.quantity;
+        in.remaining = initial_remaining;
         in.price = req.price;
         in.side = req.side;
         in.tif = req.tif;
@@ -206,6 +211,10 @@ struct Model {
 
         orders.erase(orders.begin() + static_cast<std::ptrdiff_t>(idx));
 
+        if (new_total == executed) {
+            return ModelStats{0, 0, false, false, true};
+        }
+
         Request req{};
         req.order_id = id;
         req.instrument = 1;
@@ -213,7 +222,7 @@ struct Model {
         req.price = new_price;
         req.side = old.side;
         req.tif = old.tif;
-        return add(req);
+        return add(req, static_cast<Quantity>(new_total - executed));
     }
 };
 
@@ -359,7 +368,7 @@ void test_seed(std::uint64_t seed) {
         if (op < 55 || model.orders.empty()) {
             const auto req = make_random_request(rng, next_id++);
             const auto before = sink.trades.size();
-            const auto expected = model.add(req);
+            const auto expected = model.add(req, req.quantity);
             const auto actual = book.add(req, sink);
 
             if (actual.filled_quantity != expected.filled ||
