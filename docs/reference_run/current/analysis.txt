@@ -1,0 +1,13 @@
+EFVI experiment summary
+
+Matcher runs: 15 (5 sizes × 3 repeats)
+Matcher throughput median: 10152129.663 ops/s
+Matcher throughput range: 3065550.075 .. 11114942.061 ops/s
+Allocator runs: 15 (5 sizes × 3 repeats)
+Allocator throughput median: 155134967.422 alloc/s
+Free throughput median: 897343862.168 free/s
+SPSC runs: 6 (3 capacities × 2 repeats)
+SPSC throughput median: 104351842.872 items/s
+
+These are descriptive measurements from this recorded host.
+They are not cross-machine guarantees and are not used to infer a TLB reduction percentage.

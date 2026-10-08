@@ -1,0 +1,2 @@
+operations,elapsed_s,ops_per_sec,p50_us,p99_us,trades,live_orders,pool_used,pool_capacity,pool_mapped_bytes,pool_page_size,pool_hugepages,hotpath_allocations
+50000,0.00524098,9.5402e+06,0.054,0.319,25000,1596,1596,1048576,67108864,4096,0,0

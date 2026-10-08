@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="700" viewBox="0 0 1280 700">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="60" y="60" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="32" font-weight="600">Fixed-pool scaling</text>
+<text x="60" y="92" fill="#69727d" font-family="DejaVu Sans, sans-serif" font-size="18">million operations / second vs objects</text>
+<line x1="120" y1="590.0" x2="1230" y2="590.0" stroke="#dfe4ea" stroke-width="1"/>
+<text x="106" y="595.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">68.868</text>
+<line x1="120" y1="496.0" x2="1230" y2="496.0" stroke="#dfe4ea" stroke-width="1"/>
+<text x="106" y="501.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">254.013</text>
+<line x1="120" y1="402.0" x2="1230" y2="402.0" stroke="#dfe4ea" stroke-width="1"/>
+<text x="106" y="407.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">439.159</text>
+<line x1="120" y1="308.0" x2="1230" y2="308.0" stroke="#dfe4ea" stroke-width="1"/>
+<text x="106" y="313.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">624.304</text>
+<line x1="120" y1="214.0" x2="1230" y2="214.0" stroke="#dfe4ea" stroke-width="1"/>
+<text x="106" y="219.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">809.450</text>
+<line x1="120" y1="120.0" x2="1230" y2="120.0" stroke="#dfe4ea" stroke-width="1"/>
+<text x="106" y="125.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">994.595</text>
+<line x1="120.0" y1="120" x2="120.0" y2="590" stroke="#dfe4ea" stroke-width="1"/>
+<text x="120.0" y="620" text-anchor="middle" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">1000</text>
+<line x1="164.8" y1="120" x2="164.8" y2="590" stroke="#dfe4ea" stroke-width="1"/>
+<text x="164.8" y="620" text-anchor="middle" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">5000</text>
+<line x1="220.9" y1="120" x2="220.9" y2="590" stroke="#dfe4ea" stroke-width="1"/>
+<text x="220.9" y="620" text-anchor="middle" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">10000</text>
+<line x1="669.4" y1="120" x2="669.4" y2="590" stroke="#dfe4ea" stroke-width="1"/>
+<text x="669.4" y="620" text-anchor="middle" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">50000</text>
+<line x1="1230.0" y1="120" x2="1230.0" y2="590" stroke="#dfe4ea" stroke-width="1"/>
+<text x="1230.0" y="620" text-anchor="middle" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">100000</text>
+<text x="675.0" y="655" text-anchor="middle" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="17">objects</text>
+<text x="28" y="355.0" transform="rotate(-90 28 355.0)" text-anchor="middle" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="17">million operations / second</text>
+<polyline fill="none" stroke="#72a8ff" stroke-width="5" points="120.0,527.2 164.8,541.2 220.9,544.1 669.4,557.6 1230.0,554.0"/>
+<circle cx="120.0" cy="527.2" r="7" fill="#72a8ff"/>
+<circle cx="164.8" cy="541.2" r="7" fill="#72a8ff"/>
+<circle cx="220.9" cy="544.1" r="7" fill="#72a8ff"/>
+<circle cx="669.4" cy="557.6" r="7" fill="#72a8ff"/>
+<circle cx="1230.0" cy="554.0" r="7" fill="#72a8ff"/>
+<line x1="900" y1="76" x2="926" y2="76" stroke="#72a8ff" stroke-width="5"/>
+<text x="936" y="82" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="16">allocate</text>
+<polyline fill="none" stroke="#79c98a" stroke-width="5" points="120.0,163.0 164.8,165.2 220.9,152.4 669.4,464.7 1230.0,443.9"/>
+<circle cx="120.0" cy="163.0" r="7" fill="#79c98a"/>
+<circle cx="164.8" cy="165.2" r="7" fill="#79c98a"/>
+<circle cx="220.9" cy="152.4" r="7" fill="#79c98a"/>
+<circle cx="669.4" cy="464.7" r="7" fill="#79c98a"/>
+<circle cx="1230.0" cy="443.9" r="7" fill="#79c98a"/>
+<line x1="1035" y1="76" x2="1061" y2="76" stroke="#79c98a" stroke-width="5"/>
+<text x="1071" y="82" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="16">free</text>
+<text x="60" y="682" fill="#7a828b" font-family="DejaVu Sans Mono, monospace" font-size="13">Source: allocator_matrix.csv; 3 repeats per size</text>
+</svg>

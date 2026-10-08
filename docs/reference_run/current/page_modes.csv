@@ -1,0 +1,6 @@
+mode,exit_code,status,detail
+normal,0,normal-page fallback,"page_size=4096, mapped_bytes=67108864, hugepages=false"
+auto,0,normal-page fallback,"page_size=4096, mapped_bytes=67108864, hugepages=false"
+huge2m,0,normal-page fallback,"page_size=4096, mapped_bytes=67108864, hugepages=false"
+huge1g,0,normal-page fallback,"page_size=4096, mapped_bytes=67108864, hugepages=false"
+huge1g-strict,2,expected refusal,strict request failed because 1 GiB HUGETLB pages were unavailable

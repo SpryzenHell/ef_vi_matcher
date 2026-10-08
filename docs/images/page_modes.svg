@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="438" viewBox="0 0 1280 438">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="56" y="58" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="31" font-weight="600">Page-mode experiment</text>
+<rect x="56" y="92" width="665" height="48" fill="#edf2f7" stroke="#c8d0d9"/>
+<text x="70" y="123" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="600">Mode</text>
+<rect x="721" y="92" width="294" height="48" fill="#edf2f7" stroke="#c8d0d9"/>
+<text x="735" y="123" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="600">Observed result</text>
+<rect x="1015" y="92" width="321" height="48" fill="#edf2f7" stroke="#c8d0d9"/>
+<text x="1029" y="123" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="600">Mapping</text>
+<rect x="56" y="140" width="665" height="48" fill="#ffffff" stroke="#d7dde4"/>
+<text x="70" y="171" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="16">normal</text>
+<rect x="721" y="140" width="294" height="48" fill="#ffffff" stroke="#d7dde4"/>
+<text x="735" y="171" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="16">normal-page fallback</text>
+<rect x="1015" y="140" width="321" height="48" fill="#ffffff" stroke="#d7dde4"/>
+<text x="1029" y="171" fill="#3f8f55" font-family="DejaVu Sans, sans-serif" font-size="16">page_size=4096, mapped_bytes=67108864, hugepages=false</text>
+<rect x="56" y="188" width="665" height="48" fill="#f8fafc" stroke="#d7dde4"/>
+<text x="70" y="219" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="16">auto</text>
+<rect x="721" y="188" width="294" height="48" fill="#f8fafc" stroke="#d7dde4"/>
+<text x="735" y="219" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="16">normal-page fallback</text>
+<rect x="1015" y="188" width="321" height="48" fill="#f8fafc" stroke="#d7dde4"/>
+<text x="1029" y="219" fill="#3f8f55" font-family="DejaVu Sans, sans-serif" font-size="16">page_size=4096, mapped_bytes=67108864, hugepages=false</text>
+<rect x="56" y="236" width="665" height="48" fill="#ffffff" stroke="#d7dde4"/>
+<text x="70" y="267" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="16">huge2m</text>
+<rect x="721" y="236" width="294" height="48" fill="#ffffff" stroke="#d7dde4"/>
+<text x="735" y="267" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="16">normal-page fallback</text>
+<rect x="1015" y="236" width="321" height="48" fill="#ffffff" stroke="#d7dde4"/>
+<text x="1029" y="267" fill="#3f8f55" font-family="DejaVu Sans, sans-serif" font-size="16">page_size=4096, mapped_bytes=67108864, hugepages=false</text>
+<rect x="56" y="284" width="665" height="48" fill="#f8fafc" stroke="#d7dde4"/>
+<text x="70" y="315" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="16">huge1g</text>
+<rect x="721" y="284" width="294" height="48" fill="#f8fafc" stroke="#d7dde4"/>
+<text x="735" y="315" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="16">normal-page fallback</text>
+<rect x="1015" y="284" width="321" height="48" fill="#f8fafc" stroke="#d7dde4"/>
+<text x="1029" y="315" fill="#3f8f55" font-family="DejaVu Sans, sans-serif" font-size="16">page_size=4096, mapped_bytes=67108864, hugepages=false</text>
+<rect x="56" y="332" width="665" height="48" fill="#ffffff" stroke="#d7dde4"/>
+<text x="70" y="363" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="16">huge1g-strict</text>
+<rect x="721" y="332" width="294" height="48" fill="#ffffff" stroke="#d7dde4"/>
+<text x="735" y="363" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="16">expected refusal</text>
+<rect x="1015" y="332" width="321" height="48" fill="#ffffff" stroke="#d7dde4"/>
+<text x="1029" y="363" fill="#3f8f55" font-family="DejaVu Sans, sans-serif" font-size="16">strict request failed because 1 GiB HUGETLB pages were unavailable</text>
+<text x="56" y="414" fill="#7a828b" font-family="DejaVu Sans Mono, monospace" font-size="13">Source: page_modes.csv</text>
+</svg>

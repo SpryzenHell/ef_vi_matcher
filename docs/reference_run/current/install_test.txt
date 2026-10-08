@@ -1,0 +1,8 @@
+EF_VI Zero-Copy Matcher
+  ask rested: true
+  bid filled: true
+  best ask:   10000 ticks
+  ask qty:    40
+  trades:     1
+  pool used:  1
+  pool bytes: 4194304

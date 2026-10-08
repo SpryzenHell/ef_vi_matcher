@@ -1,0 +1,1 @@
+objects=10000 alloc_ops_per_sec=136754006.892 free_ops_per_sec=927815921.321 stride=64 mapped_bytes=643072

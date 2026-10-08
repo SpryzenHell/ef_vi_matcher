@@ -1,11 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="300" viewBox="0 0 1200 300">
-<rect width="100%" height="100%" fill="#17191d"/>
-<rect x="24" y="24" width="1152" height="252" rx="12" fill="#20242a" stroke="#4e5662" stroke-width="2"/>
-<circle cx="52" cy="50" r="6" fill="#d36d6d"/>
-<circle cx="74" cy="50" r="6" fill="#d9bd67"/>
-<circle cx="96" cy="50" r="6" fill="#83bc8c"/>
-<text x="125" y="57" fill="#edf0f4" font-family="DejaVu Sans, sans-serif" font-size="22">efvi_benchmark 50000</text>
-<text x="52" y="115" fill="#edf0f4" font-family="DejaVu Sans Mono, monospace" font-size="19">operations=50000 elapsed_s=0.024 ops_per_sec=2096111.403 p50_us=0.145 p99_us=0.318 trades=40960 live_orders=0 mapped_bytes=67108864 page_size=4096 hugepages=false hotpath_allocations=0</text>
-<text x="52" y="149" fill="#edf0f4" font-family="DejaVu Sans Mono, monospace" font-size="19">spsc_items=1048576 spsc_items_per_sec=58679272.049 ring_alignment=64 slot_alignment=64</text>
-<text x="52" y="252" fill="#a8afb9" font-family="DejaVu Sans Mono, monospace" font-size="14">Source: benchmark_console.txt</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="378" viewBox="0 0 1280 378">
+<rect width="1280" height="378" fill="#11161c"/>
+<rect x="22" y="22" width="1236" height="334" rx="16" fill="#1c232b" stroke="#475260" stroke-width="2"/>
+<circle cx="54" cy="51" r="7" fill="#db7777"/>
+<circle cx="78" cy="51" r="7" fill="#dfbf70"/>
+<circle cx="102" cy="51" r="7" fill="#7bc28a"/>
+<text x="132" y="59" fill="#f2f5f8" font-family="DejaVu Sans, sans-serif" font-size="24" font-weight="600">efvi_benchmark reference run</text>
+<text x="54" y="112" fill="#f2f5f8" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22">operations=50000 elapsed_s=0.005 ops_per_sec=9540200.497 p50_us=0.054</text>
+<text x="54" y="148" fill="#f2f5f8" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22">p99_us=0.319 trades=25000 live_orders=1596 pool_used=1596</text>
+<text x="54" y="184" fill="#f2f5f8" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22">mapped_bytes=67108864 page_size=4096 hugepages=false hotpath_allocations=0</text>
+<text x="54" y="220" fill="#f2f5f8" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22">spsc_items=1048576 spsc_items_per_sec=86852315.877 ring_alignment=64</text>
+<text x="54" y="256" fill="#f2f5f8" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22">slot_alignment=64</text>
+<text x="54" y="328" fill="#aab3bd" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="15">Recorded source: benchmark_console.txt</text>
 </svg>

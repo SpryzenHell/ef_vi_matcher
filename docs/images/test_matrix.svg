@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="486" viewBox="0 0 1280 486">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="56" y="58" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="31" font-weight="600">Correctness checks</text>
+<rect x="56" y="92" width="665" height="48" fill="#edf2f7" stroke="#c8d0d9"/>
+<text x="70" y="123" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="600">Test</text>
+<rect x="721" y="92" width="294" height="48" fill="#edf2f7" stroke="#c8d0d9"/>
+<text x="735" y="123" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="600">Result</text>
+<rect x="1015" y="92" width="321" height="48" fill="#edf2f7" stroke="#c8d0d9"/>
+<text x="1029" y="123" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="600">Details</text>
+<rect x="56" y="140" width="665" height="48" fill="#ffffff" stroke="#d7dde4"/>
+<text x="70" y="171" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="16">Release unit tests</text>
+<rect x="721" y="140" width="294" height="48" fill="#ffffff" stroke="#d7dde4"/>
+<text x="735" y="171" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="16">PASS</text>
+<rect x="1015" y="140" width="321" height="48" fill="#ffffff" stroke="#d7dde4"/>
+<text x="1029" y="171" fill="#3f8f55" font-family="DejaVu Sans, sans-serif" font-size="16">11 named checks</text>
+<rect x="56" y="188" width="665" height="48" fill="#f8fafc" stroke="#d7dde4"/>
+<text x="70" y="219" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="16">Randomized model test</text>
+<rect x="721" y="188" width="294" height="48" fill="#f8fafc" stroke="#d7dde4"/>
+<text x="735" y="219" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="16">PASS</text>
+<rect x="1015" y="188" width="321" height="48" fill="#f8fafc" stroke="#d7dde4"/>
+<text x="1029" y="219" fill="#3f8f55" font-family="DejaVu Sans, sans-serif" font-size="16">8 seeds × 1000 operations</text>
+<rect x="56" y="236" width="665" height="48" fill="#ffffff" stroke="#d7dde4"/>
+<text x="70" y="267" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="16">ASan/UBSan</text>
+<rect x="721" y="236" width="294" height="48" fill="#ffffff" stroke="#d7dde4"/>
+<text x="735" y="267" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="16">PASS</text>
+<rect x="1015" y="236" width="321" height="48" fill="#ffffff" stroke="#d7dde4"/>
+<text x="1029" y="267" fill="#3f8f55" font-family="DejaVu Sans, sans-serif" font-size="16">same test targets</text>
+<rect x="56" y="284" width="665" height="48" fill="#f8fafc" stroke="#d7dde4"/>
+<text x="70" y="315" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="16">Clean install test</text>
+<rect x="721" y="284" width="294" height="48" fill="#f8fafc" stroke="#d7dde4"/>
+<text x="735" y="315" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="16">PASS</text>
+<rect x="1015" y="284" width="321" height="48" fill="#f8fafc" stroke="#d7dde4"/>
+<text x="1029" y="315" fill="#3f8f55" font-family="DejaVu Sans, sans-serif" font-size="16">installed matcher executed</text>
+<rect x="56" y="332" width="665" height="48" fill="#ffffff" stroke="#d7dde4"/>
+<text x="70" y="363" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="16">Docker smoke test</text>
+<rect x="721" y="332" width="294" height="48" fill="#ffffff" stroke="#d7dde4"/>
+<text x="735" y="363" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="16">PASS</text>
+<rect x="1015" y="332" width="321" height="48" fill="#ffffff" stroke="#d7dde4"/>
+<text x="1029" y="363" fill="#3f8f55" font-family="DejaVu Sans, sans-serif" font-size="16">clean Ubuntu image</text>
+<rect x="56" y="380" width="665" height="48" fill="#f8fafc" stroke="#d7dde4"/>
+<text x="70" y="411" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="16">DPDK configure path</text>
+<rect x="721" y="380" width="294" height="48" fill="#f8fafc" stroke="#d7dde4"/>
+<text x="735" y="411" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="16">PASS</text>
+<rect x="1015" y="380" width="321" height="48" fill="#f8fafc" stroke="#d7dde4"/>
+<text x="1029" y="411" fill="#3f8f55" font-family="DejaVu Sans, sans-serif" font-size="16">optional targets skipped when absent</text>
+<text x="56" y="462" fill="#7a828b" font-family="DejaVu Sans Mono, monospace" font-size="13">Source: CI workflow output</text>
+</svg>

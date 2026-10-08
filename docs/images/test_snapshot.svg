@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="594" viewBox="0 0 1280 594">
+<rect width="1280" height="594" fill="#11161c"/>
+<rect x="22" y="22" width="1236" height="550" rx="16" fill="#1c232b" stroke="#475260" stroke-width="2"/>
+<circle cx="54" cy="51" r="7" fill="#db7777"/>
+<circle cx="78" cy="51" r="7" fill="#dfbf70"/>
+<circle cx="102" cy="51" r="7" fill="#7bc28a"/>
+<text x="132" y="59" fill="#f2f5f8" font-family="DejaVu Sans, sans-serif" font-size="24" font-weight="600">Release test run</text>
+<text x="54" y="112" fill="#f2f5f8" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22">Internal ctest changing into directory:</text>
+<text x="54" y="148" fill="#f2f5f8" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22">/home/runner/work/ef_vi_matcher/ef_vi_matcher/build</text>
+<text x="54" y="184" fill="#f2f5f8" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22">Test project /home/runner/work/ef_vi_matcher/ef_vi_matcher/build</text>
+<text x="54" y="220" fill="#f2f5f8" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22">    Start 1: efvi_tests</text>
+<text x="54" y="256" fill="#f2f5f8" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22">1/2 Test #1: efvi_tests .......................   Passed    0.01 sec</text>
+<text x="54" y="292" fill="#f2f5f8" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22">    Start 2: efvi_property_tests</text>
+<text x="54" y="328" fill="#f2f5f8" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22">2/2 Test #2: efvi_property_tests ..............   Passed    0.00 sec</text>
+<text x="54" y="364" fill="#f2f5f8" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22"></text>
+<text x="54" y="400" fill="#f2f5f8" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22">100% tests passed, 0 tests failed out of 2</text>
+<text x="54" y="436" fill="#f2f5f8" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22"></text>
+<text x="54" y="472" fill="#f2f5f8" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22">Total Test time (real) =   0.06 sec</text>
+<text x="54" y="544" fill="#aab3bd" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="15">Recorded source: ctest_release.txt</text>
+</svg>

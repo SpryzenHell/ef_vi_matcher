@@ -1,24 +1,38 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="620" viewBox="0 0 1200 620">
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="700" viewBox="0 0 1280 700">
 <rect width="100%" height="100%" fill="#ffffff"/>
-<text x="60" y="65" fill="#23282f" font-family="DejaVu Sans, sans-serif" font-size="31">Reference throughput — CI run</text>
-<text x="60" y="94" fill="#707883" font-family="DejaVu Sans, sans-serif" font-size="17">Unit: million operations/items per second</text>
-<line x1="90" y1="480.0" x2="1110" y2="480.0" stroke="#e0e4e9" stroke-width="1"/>
-<text x="78" y="485.0" text-anchor="end" fill="#7a828c" font-family="DejaVu Sans Mono, monospace" font-size="13">0.000</text>
-<line x1="90" y1="408.0" x2="1110" y2="408.0" stroke="#e0e4e9" stroke-width="1"/>
-<text x="78" y="413.0" text-anchor="end" fill="#7a828c" font-family="DejaVu Sans Mono, monospace" font-size="13">13.496</text>
-<line x1="90" y1="336.0" x2="1110" y2="336.0" stroke="#e0e4e9" stroke-width="1"/>
-<text x="78" y="341.0" text-anchor="end" fill="#7a828c" font-family="DejaVu Sans Mono, monospace" font-size="13">26.992</text>
-<line x1="90" y1="264.0" x2="1110" y2="264.0" stroke="#e0e4e9" stroke-width="1"/>
-<text x="78" y="269.0" text-anchor="end" fill="#7a828c" font-family="DejaVu Sans Mono, monospace" font-size="13">40.489</text>
-<line x1="90" y1="192.0" x2="1110" y2="192.0" stroke="#e0e4e9" stroke-width="1"/>
-<text x="78" y="197.0" text-anchor="end" fill="#7a828c" font-family="DejaVu Sans Mono, monospace" font-size="13">53.985</text>
-<line x1="90" y1="120.0" x2="1110" y2="120.0" stroke="#e0e4e9" stroke-width="1"/>
-<text x="78" y="125.0" text-anchor="end" fill="#7a828c" font-family="DejaVu Sans Mono, monospace" font-size="13">67.481</text>
-<rect x="180.0" y="468.8" width="375.0" height="11.2" rx="6" fill="#79a9ff"/>
-<text x="367.5" y="456.8" text-anchor="middle" fill="#2e353d" font-family="DejaVu Sans Mono, monospace" font-size="16">2.096</text>
-<text x="367.5" y="520" text-anchor="middle" fill="#4e5660" font-family="DejaVu Sans, sans-serif" font-size="16">Matcher</text>
-<rect x="645.0" y="167.0" width="375.0" height="313.0" rx="6" fill="#79a9ff"/>
-<text x="832.5" y="155.0" text-anchor="middle" fill="#2e353d" font-family="DejaVu Sans Mono, monospace" font-size="16">58.679</text>
-<text x="832.5" y="520" text-anchor="middle" fill="#4e5660" font-family="DejaVu Sans, sans-serif" font-size="16">SPSC</text>
-<text x="60" y="592" fill="#7b828c" font-family="DejaVu Sans Mono, monospace" font-size="14">Source: benchmark.csv + benchmark_console.txt</text>
+<text x="60" y="60" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="32" font-weight="600">Matcher throughput across workload sizes</text>
+<text x="60" y="92" fill="#69727d" font-family="DejaVu Sans, sans-serif" font-size="18">million operations / second vs operations per run</text>
+<line x1="120" y1="590.0" x2="1230" y2="590.0" stroke="#dfe4ea" stroke-width="1"/>
+<text x="106" y="595.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">2.774</text>
+<line x1="120" y1="496.0" x2="1230" y2="496.0" stroke="#dfe4ea" stroke-width="1"/>
+<text x="106" y="501.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">4.514</text>
+<line x1="120" y1="402.0" x2="1230" y2="402.0" stroke="#dfe4ea" stroke-width="1"/>
+<text x="106" y="407.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">6.254</text>
+<line x1="120" y1="308.0" x2="1230" y2="308.0" stroke="#dfe4ea" stroke-width="1"/>
+<text x="106" y="313.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">7.995</text>
+<line x1="120" y1="214.0" x2="1230" y2="214.0" stroke="#dfe4ea" stroke-width="1"/>
+<text x="106" y="219.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">9.735</text>
+<line x1="120" y1="120.0" x2="1230" y2="120.0" stroke="#dfe4ea" stroke-width="1"/>
+<text x="106" y="125.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">11.475</text>
+<line x1="120.0" y1="120" x2="120.0" y2="590" stroke="#dfe4ea" stroke-width="1"/>
+<text x="120.0" y="620" text-anchor="middle" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">10000</text>
+<line x1="207.6" y1="120" x2="207.6" y2="590" stroke="#dfe4ea" stroke-width="1"/>
+<text x="207.6" y="620" text-anchor="middle" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">25000</text>
+<line x1="353.7" y1="120" x2="353.7" y2="590" stroke="#dfe4ea" stroke-width="1"/>
+<text x="353.7" y="620" text-anchor="middle" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">50000</text>
+<line x1="645.8" y1="120" x2="645.8" y2="590" stroke="#dfe4ea" stroke-width="1"/>
+<text x="645.8" y="620" text-anchor="middle" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">100000</text>
+<line x1="1230.0" y1="120" x2="1230.0" y2="590" stroke="#dfe4ea" stroke-width="1"/>
+<text x="1230.0" y="620" text-anchor="middle" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">200000</text>
+<text x="675.0" y="655" text-anchor="middle" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="17">operations per run</text>
+<text x="28" y="355.0" transform="rotate(-90 28 355.0)" text-anchor="middle" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="17">million operations / second</text>
+<polyline fill="none" stroke="#72a8ff" stroke-width="5" points="120.0,175.4 207.6,157.2 353.7,152.4 645.8,557.6 1230.0,497.7"/>
+<circle cx="120.0" cy="175.4" r="7" fill="#72a8ff"/>
+<circle cx="207.6" cy="157.2" r="7" fill="#72a8ff"/>
+<circle cx="353.7" cy="152.4" r="7" fill="#72a8ff"/>
+<circle cx="645.8" cy="557.6" r="7" fill="#72a8ff"/>
+<circle cx="1230.0" cy="497.7" r="7" fill="#72a8ff"/>
+<line x1="900" y1="76" x2="926" y2="76" stroke="#72a8ff" stroke-width="5"/>
+<text x="936" y="82" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="16">median throughput</text>
+<text x="60" y="682" fill="#7a828b" font-family="DejaVu Sans Mono, monospace" font-size="13">Source: benchmark_matrix.csv; 3 repeats per size</text>
 </svg>
