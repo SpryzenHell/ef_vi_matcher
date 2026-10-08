@@ -3,17 +3,17 @@
 <text x="60" y="60" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="32" font-weight="600">Matcher latency across workload sizes</text>
 <text x="60" y="92" fill="#69727d" font-family="DejaVu Sans, sans-serif" font-size="18">microseconds vs operations per run</text>
 <line x1="120" y1="590.0" x2="1230" y2="590.0" stroke="#dfe4ea" stroke-width="1"/>
-<text x="106" y="595.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">-0.112</text>
+<text x="106" y="595.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">-0.120</text>
 <line x1="120" y1="496.0" x2="1230" y2="496.0" stroke="#dfe4ea" stroke-width="1"/>
-<text x="106" y="501.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">0.358</text>
+<text x="106" y="501.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">0.343</text>
 <line x1="120" y1="402.0" x2="1230" y2="402.0" stroke="#dfe4ea" stroke-width="1"/>
-<text x="106" y="407.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">0.828</text>
+<text x="106" y="407.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">0.806</text>
 <line x1="120" y1="308.0" x2="1230" y2="308.0" stroke="#dfe4ea" stroke-width="1"/>
-<text x="106" y="313.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">1.299</text>
+<text x="106" y="313.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">1.268</text>
 <line x1="120" y1="214.0" x2="1230" y2="214.0" stroke="#dfe4ea" stroke-width="1"/>
-<text x="106" y="219.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">1.769</text>
+<text x="106" y="219.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">1.731</text>
 <line x1="120" y1="120.0" x2="1230" y2="120.0" stroke="#dfe4ea" stroke-width="1"/>
-<text x="106" y="125.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">2.239</text>
+<text x="106" y="125.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">2.194</text>
 <line x1="120.0" y1="120" x2="120.0" y2="590" stroke="#dfe4ea" stroke-width="1"/>
 <text x="120.0" y="620" text-anchor="middle" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">10000</text>
 <line x1="207.6" y1="120" x2="207.6" y2="590" stroke="#dfe4ea" stroke-width="1"/>
@@ -26,20 +26,20 @@
 <text x="1230.0" y="620" text-anchor="middle" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">200000</text>
 <text x="675.0" y="655" text-anchor="middle" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="17">operations per run</text>
 <text x="28" y="355.0" transform="rotate(-90 28 355.0)" text-anchor="middle" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="17">microseconds</text>
-<polyline fill="none" stroke="#72a8ff" stroke-width="5" points="120.0,557.2 207.6,557.6 353.7,557.6 645.8,556.8 1230.0,548.0"/>
-<circle cx="120.0" cy="557.2" r="7" fill="#72a8ff"/>
+<polyline fill="none" stroke="#72a8ff" stroke-width="5" points="120.0,557.4 207.6,557.6 353.7,557.6 645.8,557.6 1230.0,557.6"/>
+<circle cx="120.0" cy="557.4" r="7" fill="#72a8ff"/>
 <circle cx="207.6" cy="557.6" r="7" fill="#72a8ff"/>
 <circle cx="353.7" cy="557.6" r="7" fill="#72a8ff"/>
-<circle cx="645.8" cy="556.8" r="7" fill="#72a8ff"/>
-<circle cx="1230.0" cy="548.0" r="7" fill="#72a8ff"/>
+<circle cx="645.8" cy="557.6" r="7" fill="#72a8ff"/>
+<circle cx="1230.0" cy="557.6" r="7" fill="#72a8ff"/>
 <line x1="900" y1="76" x2="926" y2="76" stroke="#72a8ff" stroke-width="5"/>
 <text x="936" y="82" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="16">p50</text>
-<polyline fill="none" stroke="#79c98a" stroke-width="5" points="120.0,520.6 207.6,537.6 353.7,529.8 645.8,152.4 1230.0,154.6"/>
-<circle cx="120.0" cy="520.6" r="7" fill="#79c98a"/>
-<circle cx="207.6" cy="537.6" r="7" fill="#79c98a"/>
-<circle cx="353.7" cy="529.8" r="7" fill="#79c98a"/>
+<polyline fill="none" stroke="#79c98a" stroke-width="5" points="120.0,537.1 207.6,537.3 353.7,537.3 645.8,152.4 1230.0,162.6"/>
+<circle cx="120.0" cy="537.1" r="7" fill="#79c98a"/>
+<circle cx="207.6" cy="537.3" r="7" fill="#79c98a"/>
+<circle cx="353.7" cy="537.3" r="7" fill="#79c98a"/>
 <circle cx="645.8" cy="152.4" r="7" fill="#79c98a"/>
-<circle cx="1230.0" cy="154.6" r="7" fill="#79c98a"/>
+<circle cx="1230.0" cy="162.6" r="7" fill="#79c98a"/>
 <line x1="1035" y1="76" x2="1061" y2="76" stroke="#79c98a" stroke-width="5"/>
 <text x="1071" y="82" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="16">p99</text>
 <text x="60" y="682" fill="#7a828b" font-family="DejaVu Sans Mono, monospace" font-size="13">Source: benchmark_matrix.csv; 3 repeats per size</text>

@@ -8,7 +8,7 @@
 <text x="54" y="112" fill="#f2f5f8" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22">Linux hugepage probe</text>
 <text x="54" y="148" fill="#f2f5f8" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22">1GiB hugepage pool: 0</text>
 <text x="54" y="184" fill="#f2f5f8" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22">2MiB hugepage pool: 0</text>
-<text x="54" y="220" fill="#f2f5f8" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22">allocator_capacity=1024 mapped_bytes=65536 base=0x55c8171754c0 page_size=4096</text>
+<text x="54" y="220" fill="#f2f5f8" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22">allocator_capacity=1024 mapped_bytes=65536 base=0x556d04ee74c0 page_size=4096</text>
 <text x="54" y="256" fill="#f2f5f8" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22">hugepage_backed=false</text>
 <text x="54" y="292" fill="#f2f5f8" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22">allocator_mode=auto (1GiB -&gt; 2MiB -&gt; normal fallback)</text>
 <text x="54" y="328" fill="#f2f5f8" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22">order_request_size=64 order_request_align=64 rx_descriptor_size=16</text>

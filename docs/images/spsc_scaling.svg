@@ -3,17 +3,17 @@
 <text x="60" y="60" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="32" font-weight="600">SPSC throughput by ring size</text>
 <text x="60" y="92" fill="#69727d" font-family="DejaVu Sans, sans-serif" font-size="18">million items / second vs ring capacity</text>
 <line x1="120" y1="590.0" x2="1230" y2="590.0" stroke="#dfe4ea" stroke-width="1"/>
-<text x="106" y="595.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">99.265</text>
+<text x="106" y="595.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">106.373</text>
 <line x1="120" y1="496.0" x2="1230" y2="496.0" stroke="#dfe4ea" stroke-width="1"/>
-<text x="106" y="501.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">100.693</text>
+<text x="106" y="501.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">110.552</text>
 <line x1="120" y1="402.0" x2="1230" y2="402.0" stroke="#dfe4ea" stroke-width="1"/>
-<text x="106" y="407.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">102.121</text>
+<text x="106" y="407.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">114.730</text>
 <line x1="120" y1="308.0" x2="1230" y2="308.0" stroke="#dfe4ea" stroke-width="1"/>
-<text x="106" y="313.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">103.549</text>
+<text x="106" y="313.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">118.908</text>
 <line x1="120" y1="214.0" x2="1230" y2="214.0" stroke="#dfe4ea" stroke-width="1"/>
-<text x="106" y="219.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">104.976</text>
+<text x="106" y="219.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">123.086</text>
 <line x1="120" y1="120.0" x2="1230" y2="120.0" stroke="#dfe4ea" stroke-width="1"/>
-<text x="106" y="125.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">106.404</text>
+<text x="106" y="125.0" text-anchor="end" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">127.264</text>
 <line x1="120.0" y1="120" x2="120.0" y2="590" stroke="#dfe4ea" stroke-width="1"/>
 <text x="120.0" y="620" text-anchor="middle" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">1024</text>
 <line x1="172.9" y1="120" x2="172.9" y2="590" stroke="#dfe4ea" stroke-width="1"/>
@@ -22,9 +22,9 @@
 <text x="1230.0" y="620" text-anchor="middle" fill="#69727d" font-family="DejaVu Sans Mono, monospace" font-size="14">65536</text>
 <text x="675.0" y="655" text-anchor="middle" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="17">ring capacity</text>
 <text x="28" y="355.0" transform="rotate(-90 28 355.0)" text-anchor="middle" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="17">million items / second</text>
-<polyline fill="none" stroke="#72a8ff" stroke-width="5" points="120.0,557.6 172.9,310.8 1230.0,152.4"/>
+<polyline fill="none" stroke="#72a8ff" stroke-width="5" points="120.0,557.6 172.9,517.0 1230.0,152.4"/>
 <circle cx="120.0" cy="557.6" r="7" fill="#72a8ff"/>
-<circle cx="172.9" cy="310.8" r="7" fill="#72a8ff"/>
+<circle cx="172.9" cy="517.0" r="7" fill="#72a8ff"/>
 <circle cx="1230.0" cy="152.4" r="7" fill="#72a8ff"/>
 <line x1="900" y1="76" x2="926" y2="76" stroke="#72a8ff" stroke-width="5"/>
 <text x="936" y="82" fill="#242a31" font-family="DejaVu Sans, sans-serif" font-size="16">SPSC</text>

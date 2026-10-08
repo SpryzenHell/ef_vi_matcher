@@ -1,13 +1,34 @@
 EFVI experiment summary
 
 Matcher runs: 15 (5 sizes × 3 repeats)
-Matcher throughput median: 10152129.663 ops/s
-Matcher throughput range: 3065550.075 .. 11114942.061 ops/s
+Matcher throughput median across all runs: 9856557.518 ops/s
+Matcher throughput range across all runs: 3327535.878 .. 10912789.353 ops/s
+
+Matcher workload summary:
+  10000 ops: median=10614494.304 ops/s, min=9856557.518, max=10801375.663, repeat_spread=8.90%, p50=0.041 us, p99=0.141 us, p99/p50=3.44x
+  25000 ops: median=10826564.926 ops/s, min=10575314.002, max=10860546.242, repeat_spread=2.63%, p50=0.040 us, p99=0.140 us, p99/p50=3.50x
+  50000 ops: median=10837030.567 ops/s, min=8416465.569, max=10912789.353, repeat_spread=23.04%, p50=0.040 us, p99=0.140 us, p99/p50=3.50x
+  100000 ops: median=3411354.769 ops/s, min=3327535.878, max=3422856.549, repeat_spread=2.79%, p50=0.040 us, p99=2.034 us, p99/p50=50.85x
+  200000 ops: median=5236013.437 ops/s, min=5228228.649, max=5265899.350, repeat_spread=0.72%, p50=0.040 us, p99=1.984 us, p99/p50=49.60x
+
 Allocator runs: 15 (5 sizes × 3 repeats)
-Allocator throughput median: 155134967.422 alloc/s
-Free throughput median: 897343862.168 free/s
+Allocator throughput median: 192097124.306 alloc/s
+Free throughput median: 810832725.209 free/s
+
+Allocator workload summary:
+  1000 objects: alloc_median=252016129.032 ops/s, free_median=1018329938.900 ops/s, stride=64
+  5000 objects: alloc_median=216609626.132 ops/s, free_median=1052853232.259 ops/s, stride=64
+  10000 objects: alloc_median=192097124.306 ops/s, free_median=810832725.209 ops/s, stride=64
+  50000 objects: alloc_median=137356977.048 ops/s, free_median=573907853.355 ops/s, stride=64
+  100000 objects: alloc_median=179952888.334 ops/s, free_median=743936914.150 ops/s, stride=64
+
 SPSC runs: 6 (3 capacities × 2 repeats)
-SPSC throughput median: 104351842.872 items/s
+SPSC throughput median: 112101727.555 items/s
+
+SPSC workload summary:
+  capacity=1024: median=107814072.584 items/s, min=104520391.981, max=111107753.188, repeat_spread=6.11%
+  capacity=4096: median=109618745.185 items/s, min=106141788.447, max=113095701.922, repeat_spread=6.34%
+  capacity=65536: median=125823643.733 items/s, min=117850732.619, max=133796554.846, repeat_spread=12.67%
 
 These are descriptive measurements from this recorded host.
 They are not cross-machine guarantees and are not used to infer a TLB reduction percentage.

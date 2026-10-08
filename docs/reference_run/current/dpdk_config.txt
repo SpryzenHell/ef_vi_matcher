@@ -8,6 +8,6 @@
 -- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
 -- Found Threads: TRUE
 -- DPDK not found: optional DPDK targets are skipped
--- Configuring done (0.2s)
+-- Configuring done (0.4s)
 -- Generating done (0.0s)
 -- Build files have been written to: /home/runner/work/ef_vi_matcher/ef_vi_matcher/build-dpdk-check

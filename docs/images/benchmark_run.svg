@@ -5,10 +5,10 @@
 <circle cx="78" cy="51" r="7" fill="#dfbf70"/>
 <circle cx="102" cy="51" r="7" fill="#7bc28a"/>
 <text x="132" y="59" fill="#f2f5f8" font-family="DejaVu Sans, sans-serif" font-size="24" font-weight="600">efvi_benchmark reference run</text>
-<text x="54" y="112" fill="#f2f5f8" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22">operations=50000 elapsed_s=0.005 ops_per_sec=9540200.497 p50_us=0.054</text>
-<text x="54" y="148" fill="#f2f5f8" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22">p99_us=0.319 trades=25000 live_orders=1596 pool_used=1596</text>
+<text x="54" y="112" fill="#f2f5f8" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22">operations=50000 elapsed_s=0.005 ops_per_sec=10685491.368 p50_us=0.041</text>
+<text x="54" y="148" fill="#f2f5f8" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22">p99_us=0.141 trades=25000 live_orders=1596 pool_used=1596</text>
 <text x="54" y="184" fill="#f2f5f8" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22">mapped_bytes=67108864 page_size=4096 hugepages=false hotpath_allocations=0</text>
-<text x="54" y="220" fill="#f2f5f8" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22">spsc_items=1048576 spsc_items_per_sec=86852315.877 ring_alignment=64</text>
+<text x="54" y="220" fill="#f2f5f8" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22">spsc_items=1048576 spsc_items_per_sec=140009394.704 ring_alignment=64</text>
 <text x="54" y="256" fill="#f2f5f8" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22">slot_alignment=64</text>
 <text x="54" y="328" fill="#aab3bd" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="15">Recorded source: benchmark_console.txt</text>
 </svg>

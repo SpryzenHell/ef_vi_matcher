@@ -5,7 +5,7 @@
 <circle cx="78" cy="51" r="7" fill="#dfbf70"/>
 <circle cx="102" cy="51" r="7" fill="#7bc28a"/>
 <text x="132" y="59" fill="#f2f5f8" font-family="DejaVu Sans, sans-serif" font-size="24" font-weight="600">efvi_allocator_benchmark</text>
-<text x="54" y="112" fill="#f2f5f8" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22">objects=10000 alloc_ops_per_sec=136754006.892 free_ops_per_sec=927815921.321</text>
+<text x="54" y="112" fill="#f2f5f8" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22">objects=10000 alloc_ops_per_sec=189940738.490 free_ops_per_sec=776156473.145</text>
 <text x="54" y="148" fill="#f2f5f8" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22">stride=64 mapped_bytes=643072</text>
 <text x="54" y="280" fill="#aab3bd" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="15">Recorded source: allocator_baseline.txt</text>
 </svg>

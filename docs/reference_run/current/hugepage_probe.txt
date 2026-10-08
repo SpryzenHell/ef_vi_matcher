@@ -1,6 +1,6 @@
 Linux hugepage probe
 1GiB hugepage pool: 0
 2MiB hugepage pool: 0
-allocator_capacity=1024 mapped_bytes=65536 base=0x55c8171754c0 page_size=4096 hugepage_backed=false
+allocator_capacity=1024 mapped_bytes=65536 base=0x556d04ee74c0 page_size=4096 hugepage_backed=false
 allocator_mode=auto (1GiB -> 2MiB -> normal fallback)
 order_request_size=64 order_request_align=64 rx_descriptor_size=16 rx_descriptor_align=8
