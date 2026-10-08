@@ -150,6 +150,39 @@ static void test_cancel_replace_priority() {
     assert(s.trades.back().resting_id == 33);
 }
 
+static void test_partial_fill_replace_total_semantics() {
+    Book::Config cfg{};
+    cfg.base_price = 1000;
+    cfg.order_pool_pages = efvi::PageMode::Normal;
+
+    Book b(cfg);
+    Sink s;
+
+    b.add(make_order(80, 100, 1010, efvi::Side::Sell), s);
+    const auto fill = b.add(make_order(81, 30, 1010, efvi::Side::Buy), s);
+    assert(fill.filled_quantity == 30);
+    assert(b.best_ask_qty() == 70);
+
+    const auto repl = b.replace(80, 100, 1011, s);
+    assert(repl.rested);
+    assert(b.best_ask() == 1011);
+    assert(b.best_ask_qty() == 70);
+
+    const auto take = b.add(make_order(82, 69, 1011, efvi::Side::Buy), s);
+    assert(take.filled_quantity == 69);
+    assert(b.best_ask_qty() == 1);
+
+    const auto final = b.add(make_order(83, 1, 1011, efvi::Side::Buy), s);
+    assert(final.fully_filled);
+    assert(b.best_ask() == 0);
+
+    b.add(make_order(84, 100, 1012, efvi::Side::Sell), s);
+    b.add(make_order(85, 25, 1012, efvi::Side::Buy), s);
+    const auto zero = b.replace(84, 25, 1013, s);
+    assert(zero.cancelled);
+    assert(b.best_ask() == 0);
+}
+
 static void test_partial_fill_replace_bounds() {
     Book::Config cfg{};
     cfg.base_price = 1000;
@@ -440,6 +473,8 @@ int main() {
     std::cout << "PASS cancel_replace_priority\n";
     test_partial_fill_replace_bounds();
     std::cout << "PASS partial_replace_bounds\n";
+    test_partial_fill_replace_total_semantics();
+    std::cout << "PASS partial_replace_total_semantics\n";
     test_determinism();
     std::cout << "PASS deterministic_trades\n";
     test_pool_edges_and_alignment();
