@@ -185,22 +185,125 @@ def main() -> int:
     free_rates = [float(r["free_ops_per_sec"]) for r in alloc_rows]
     spsc_rates = [float(r["items_per_sec"]) for r in spsc_rows]
 
+    benchmark_summary = []
+    for n in BENCH_SIZES:
+        rs = [r for r in bench_rows if int(r["operations"]) == n]
+        rates = [float(r["ops_per_sec"]) for r in rs]
+        p50s = [float(r["p50_us"]) for r in rs]
+        p99s = [float(r["p99_us"]) for r in rs]
+        med = statistics.median(rates)
+        spread = (max(rates) - min(rates)) / med * 100.0 if med else 0.0
+        benchmark_summary.append({
+            "operations": n,
+            "throughput_median_ops_s": f"{med:.3f}",
+            "throughput_min_ops_s": f"{min(rates):.3f}",
+            "throughput_max_ops_s": f"{max(rates):.3f}",
+            "throughput_spread_pct": f"{spread:.2f}",
+            "p50_median_us": f"{statistics.median(p50s):.3f}",
+            "p99_median_us": f"{statistics.median(p99s):.3f}",
+            "p99_to_p50": f"{statistics.median(p99s) / statistics.median(p50s):.2f}",
+        })
+
+    allocator_summary = []
+    for objects in ALLOC_SIZES:
+        rs = [r for r in alloc_rows if int(r["objects"]) == objects]
+        allocs = [float(r["alloc_ops_per_sec"]) for r in rs]
+        frees = [float(r["free_ops_per_sec"]) for r in rs]
+        allocator_summary.append({
+            "objects": objects,
+            "alloc_median_ops_s": f"{statistics.median(allocs):.3f}",
+            "alloc_min_ops_s": f"{min(allocs):.3f}",
+            "alloc_max_ops_s": f"{max(allocs):.3f}",
+            "free_median_ops_s": f"{statistics.median(frees):.3f}",
+            "stride": rs[0]["stride"],
+        })
+
+    spsc_summary = []
+    for cap in sorted({int(r["capacity"]) for r in spsc_rows}):
+        rs = [r for r in spsc_rows if int(r["capacity"]) == cap]
+        rates = [float(r["items_per_sec"]) for r in rs]
+        spsc_summary.append({
+            "capacity": cap,
+            "median_items_s": f"{statistics.median(rates):.3f}",
+            "min_items_s": f"{min(rates):.3f}",
+            "max_items_s": f"{max(rates):.3f}",
+            "spread_pct": f"{((max(rates) - min(rates)) / statistics.median(rates) * 100.0):.2f}",
+        })
+
+    write_csv(
+        out / "benchmark_summary.csv",
+        benchmark_summary,
+        ["operations", "throughput_median_ops_s", "throughput_min_ops_s",
+         "throughput_max_ops_s", "throughput_spread_pct", "p50_median_us",
+         "p99_median_us", "p99_to_p50"],
+    )
+    write_csv(
+        out / "allocator_summary.csv",
+        allocator_summary,
+        ["objects", "alloc_median_ops_s", "alloc_min_ops_s",
+         "alloc_max_ops_s", "free_median_ops_s", "stride"],
+    )
+    write_csv(
+        out / "spsc_summary.csv",
+        spsc_summary,
+        ["capacity", "median_items_s", "min_items_s", "max_items_s", "spread_pct"],
+    )
+
     analysis = [
         "EFVI experiment summary",
         "",
         f"Matcher runs: {len(bench_rows)} ({len(BENCH_SIZES)} sizes × {REPEATS} repeats)",
-        f"Matcher throughput median: {statistics.median(benchmark_rates):.3f} ops/s",
-        f"Matcher throughput range: {min(benchmark_rates):.3f} .. {max(benchmark_rates):.3f} ops/s",
+        f"Matcher throughput median across all runs: {statistics.median(benchmark_rates):.3f} ops/s",
+        f"Matcher throughput range across all runs: {min(benchmark_rates):.3f} .. {max(benchmark_rates):.3f} ops/s",
+        "",
+        "Matcher workload summary:",
+    ]
+    for row in benchmark_summary:
+        analysis.append(
+            "  "
+            f"{row['operations']} ops: median={row['throughput_median_ops_s']} ops/s, "
+            f"min={row['throughput_min_ops_s']}, max={row['throughput_max_ops_s']}, "
+            f"repeat_spread={row['throughput_spread_pct']}%, "
+            f"p50={row['p50_median_us']} us, p99={row['p99_median_us']} us, "
+            f"p99/p50={row['p99_to_p50']}x"
+        )
+
+    analysis.extend([
+        "",
         f"Allocator runs: {len(alloc_rows)} ({len(ALLOC_SIZES)} sizes × {REPEATS} repeats)",
         f"Allocator throughput median: {statistics.median(allocator_rates):.3f} alloc/s",
         f"Free throughput median: {statistics.median(free_rates):.3f} free/s",
-        f"SPSC runs: {len(spsc_rows)} ({3} capacities × {SPSC_REPEATS} repeats)",
+        "",
+        "Allocator workload summary:",
+    ])
+    for row in allocator_summary:
+        analysis.append(
+            "  "
+            f"{row['objects']} objects: alloc_median={row['alloc_median_ops_s']} ops/s, "
+            f"free_median={row['free_median_ops_s']} ops/s, stride={row['stride']}"
+        )
+
+    analysis.extend([
+        "",
+        f"SPSC runs: {len(spsc_rows)} (3 capacities × {SPSC_REPEATS} repeats)",
         f"SPSC throughput median: {statistics.median(spsc_rates):.3f} items/s",
+        "",
+        "SPSC workload summary:",
+    ])
+    for row in spsc_summary:
+        analysis.append(
+            "  "
+            f"capacity={row['capacity']}: median={row['median_items_s']} items/s, "
+            f"min={row['min_items_s']}, max={row['max_items_s']}, "
+            f"repeat_spread={row['spread_pct']}%"
+        )
+
+    analysis.extend([
         "",
         "These are descriptive measurements from this recorded host.",
         "They are not cross-machine guarantees and are not used to infer a TLB reduction percentage.",
         "",
-    ]
+    ])
     (out / "analysis.txt").write_text("\n".join(analysis), encoding="utf-8")
     (out / "experiment_console.txt").write_text("\n".join(console_lines) + "\n", encoding="utf-8")
 

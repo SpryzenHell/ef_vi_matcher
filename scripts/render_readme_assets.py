@@ -255,6 +255,8 @@ def main() -> int:
 
     n_values = sorted({int(r["operations"]) for r in bench})
     throughput_points = []
+    throughput_min_points = []
+    throughput_max_points = []
     p50_points = []
     p99_points = []
     for n in n_values:
@@ -262,6 +264,8 @@ def main() -> int:
         p50s = [float(r["p50_us"]) for r in bench if int(r["operations"]) == n]
         p99s = [float(r["p99_us"]) for r in bench if int(r["operations"]) == n]
         throughput_points.append((n, statistics.median(rates)))
+        throughput_min_points.append((n, min(rates)))
+        throughput_max_points.append((n, max(rates)))
         p50_points.append((n, statistics.median(p50s)))
         p99_points.append((n, statistics.median(p99s)))
 
@@ -294,7 +298,11 @@ def main() -> int:
             "Matcher throughput across workload sizes",
             "operations per run",
             "million operations / second",
-            [("median throughput", throughput_points)],
+            [
+                ("median", throughput_points),
+                ("minimum", throughput_min_points),
+                ("maximum", throughput_max_points),
+            ],
             "benchmark_matrix.csv; 3 repeats per size",
         ),
         "benchmark_latency.svg": line_chart(
