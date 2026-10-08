@@ -182,7 +182,7 @@ Raw CSV and text data are stored in docs/reference_run/current/.
 
 ![Page mode experiment](docs/images/page_modes.svg)
 
-The figures use the recorded CSV data directly. They are measurement summaries, not fixed performance promises.
+The figures use the recorded CSV data directly. Throughput also shows the minimum and maximum of the repeated runs. The detailed summary files report repeat spread and p99-to-p50 latency ratio. These are measurement summaries, not fixed performance promises.
 
 ## Allocator
 
@@ -276,8 +276,11 @@ The raw files include:
 - ctest_release.txt
 - ctest_asan.txt
 - benchmark_matrix.csv
+- benchmark_summary.csv
 - allocator_matrix.csv
+- allocator_summary.csv
 - spsc_matrix.csv
+- spsc_summary.csv
 - page_modes.csv
 - analysis.txt
 - experiment_console.txt
