@@ -37,7 +37,7 @@ def parse_benchmark(stdout: str) -> dict[str, str]:
 
 def write_csv(path: Path, rows: list[dict[str, object]], fields: list[str]) -> None:
     with path.open("w", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=fields)
+        w = csv.DictWriter(f, fieldnames=fields, lineterminator="\n")
         w.writeheader()
         w.writerows(rows)
 
